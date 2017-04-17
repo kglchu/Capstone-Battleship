@@ -8,11 +8,11 @@ Battleship.GameState.preload = function() {
   this.load.image('player', 'img/assets/gfx/bullet.png');
   this.load.image('enemy', 'img/assets/gfx/player.png');
   this.load.image('ground', 'img/assets/gfx/ground.png');
-  this.load.image('ship2', 'img/assets/gfx/ship2.png');
-  this.load.image('ship3', 'img/assets/gfx/ship3.png');
-  this.load.image('ship4', 'img/assets/gfx/ship4.png');
-  this.load.image('ship5', 'img/assets/gfx/ship5.png');
-  this.load.image('ship6', 'img/assets/gfx/ship6.png');
+  this.load.image('ship2', 'img/assets/gfx/Ship2.png');
+  this.load.image('ship3', 'img/assets/gfx/Ship3.png');
+  this.load.image('ship4', 'img/assets/gfx/Ship4.png');
+  this.load.image('ship5', 'img/assets/gfx/Ship5.png');
+  this.load.image('ship6', 'img/assets/gfx/Ship6.png');
 
   this.load.spritesheet('explosion', 'img/assets/gfx/explosion.png', 128, 128);
   this.load.spritesheet('cell', 'img/assets/gfx/cells.png', 64, 64);
