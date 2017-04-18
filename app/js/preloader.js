@@ -1,6 +1,196 @@
 Battleship.GameState.init = function() {
   // this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
   this.game.physics.startSystem(Phaser.Physics.ARCADE);
+
+  this.matrix = [
+    [ // board 1
+      [0, 0, 0, 0, 0, 0, 0, 0, 2, 2],
+      [0, 5, 5, 5, 5, 5, 0, 0, 0, 0],
+      [0, 0, 0, 6, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 6, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 6, 0, 0, 0, 0, 0, 0],
+      [0, 3, 0, 6, 0, 0, 0, 0, 0, 0],
+      [0, 3, 0, 6, 0, 0, 0, 0, 0, 0],
+      [0, 3, 0, 6, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 4, 4, 4, 4, 0, 0, 0],
+    ],
+    [ // board 2
+      [0, 0, 0, 0, 0, 5, 0, 0, 2, 0],
+      [0, 0, 0, 0, 0, 5, 0, 0, 2, 0],
+      [0, 0, 0, 6, 0, 5, 0, 0, 0, 0],
+      [0, 0, 0, 6, 0, 5, 0, 0, 0, 0],
+      [0, 0, 0, 6, 0, 5, 0, 0, 0, 0],
+      [0, 3, 0, 6, 0, 0, 0, 0, 0, 0],
+      [0, 3, 0, 6, 0, 0, 0, 0, 0, 0],
+      [0, 3, 0, 6, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 4, 4, 4, 4, 0, 0, 0],
+    ],
+    [ // board 3
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 5, 5, 5, 5, 5, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 6, 6, 6, 6, 6, 6, 0, 0],
+      [0, 3, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 3, 0, 0, 0, 0, 2, 2, 0, 0],
+      [0, 3, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 4, 4, 4, 4, 0, 0, 0],
+    ],
+    [ // board 4
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 5, 5, 5, 5, 5, 0, 0, 0, 0],
+      [0, 0, 0, 6, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 6, 0, 0, 2, 0, 0, 0],
+      [0, 0, 0, 6, 0, 0, 2, 0, 0, 0],
+      [0, 3, 0, 6, 0, 0, 0, 0, 0, 0],
+      [0, 3, 0, 6, 0, 0, 0, 0, 0, 0],
+      [0, 3, 0, 6, 4, 4, 4, 4, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ],
+    [ // board 5
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 5, 5, 5, 5, 5, 0, 0, 0, 0],
+      [0, 0, 0, 6, 0, 0, 0, 0, 0, 0],
+      [0, 3, 0, 6, 0, 0, 0, 0, 0, 0],
+      [0, 3, 0, 6, 0, 4, 4, 4, 4, 0],
+      [0, 3, 0, 6, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 6, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 6, 0, 0, 0, 0, 0, 0],
+      [2, 2, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ],
+    [ // board 6
+      [0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
+      [0, 5, 5, 5, 5, 5, 0, 0, 2, 0],
+      [0, 0, 0, 6, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 6, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 6, 0, 0, 0, 0, 0, 0],
+      [0, 3, 0, 6, 0, 0, 0, 0, 0, 0],
+      [0, 3, 0, 6, 0, 0, 0, 0, 0, 0],
+      [0, 3, 0, 6, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 4, 4, 4, 4, 0, 0, 0],
+    ]
+  ];
+
+  this.levels.ships = [
+    // board 1 ships
+    {
+      'ship2': {
+        'angle': 0
+      },
+      'ship3': {
+        'angle': 90
+      },
+      'ship4': {
+        'angle': 0
+      }, 
+      'ship5': {
+        'angle': 0
+      },
+      'ship6': {
+        'angle': 90
+      }
+    },
+    // board 2 ships
+    {
+      'ship2': {
+        'angle': 90
+      },
+      'ship3': {
+        'angle': 90
+      },
+      'ship4': {
+        'angle': 0
+      }, 
+      'ship5': {
+        'angle': 90
+      },
+      'ship6': {
+        'angle': 90
+      }
+    },
+    // board 3 ships
+    {
+      'ship2': {
+        'angle': 0
+      },
+      'ship3': {
+        'angle': 90
+      },
+      'ship4': {
+        'angle': 0
+      }, 
+      'ship5': {
+        'angle': 0
+      },
+      'ship6': {
+        'angle': 0
+      }
+    },
+    // board 4 ships
+    {
+      'ship2': {
+        'angle': 90
+      },
+      'ship3': {
+        'angle': 90
+      },
+      'ship4': {
+        'angle': 0
+      }, 
+      'ship5': {
+        'angle': 0
+      },
+      'ship6': {
+        'angle': 90
+      }
+    },
+    // board 5 ships
+    {
+      'ship2': {
+        'angle': 0
+      },
+      'ship3': {
+        'angle': 90
+      },
+      'ship4': {
+        'angle': 0
+      }, 
+      'ship5': {
+        'angle': 0
+      },
+      'ship6': {
+        'angle': 90
+      }
+    },
+    // board 6 ships
+    {
+      'ship2': {
+        'angle': 90
+      },
+      'ship3': {
+        'angle': 90
+      },
+      'ship4': {
+        'angle': 0
+      }, 
+      'ship5': {
+        'angle': 0
+      },
+      'ship6': {
+        'angle': 90
+      }
+    }
+    
+  ];
+
+  // test to get game custom properties
+  console.log("Player Score: " + this.game.data.playerScore);
 };
 
 Battleship.GameState.preload = function() {
@@ -19,45 +209,21 @@ Battleship.GameState.preload = function() {
 };
 
 Battleship.GameState.positionData = function() {
-  this.matrix = [
-    [0, 0, 0, 0, 0, 0, 0, 0, 2, 2],
-    [0, 5, 5, 5, 5, 5, 0, 0, 0, 0],
-    [0, 0, 0, 6, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 6, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 6, 0, 0, 0, 0, 0, 0],
-    [0, 3, 0, 6, 0, 0, 0, 0, 0, 0],
-    [0, 3, 0, 6, 0, 0, 0, 0, 0, 0],
-    [0, 3, 0, 6, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 4, 4, 4, 4, 0, 0, 0],
-  ];
+  var board = {}
+  var len = this.matrix.length;
+  var index = Math.floor(Math.random() * (len - 1));
+  board.matrix = this.matrix[index];
+  board.index = index
 
-  this.levels.ships = [
-  {
-    'ship2': {
-      'angle': 0
-    },
-    'ship3': {
-      'angle': 90
-    },
-    'ship4': {
-      'angle': 0
-    }, 
-    'ship5': {
-      'angle': 0
-    },
-    'ship6': {
-      'angle': 90
-    }
-  }
-  ];
+  return board;
+  
 };
 
 Battleship.GameState.create = function() {
   this.game.stage.backgroundColor = '#4488cc';
 
-  this.positionData();
-  this.spawnBoard();
+  var board = this.positionData();
+  this.spawnBoard(board);
 
   this.gun = this.game.add.sprite(this.game.width / 2, this.game.height - 10, 'player');
   this.gun.anchor.setTo(0.5, 0.5);
