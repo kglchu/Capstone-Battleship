@@ -16,6 +16,8 @@ Battleship.GameState.preload = function() {
 
   this.load.spritesheet('explosion', 'img/assets/gfx/explosion.png', 128, 128);
   this.load.spritesheet('cell', 'img/assets/gfx/cells.png', 64, 64);
+
+  this.load.audio('music', '[img/assets/audio/Battleship.mp3, img/assets/audio/Battleship.ogg]');
 };
 
 Battleship.GameState.positionData = function() {
@@ -78,5 +80,8 @@ Battleship.GameState.create = function() {
   this.game.input.activePointer.y = this.game.height / 2;
 
   this.explosionGroup = this.game.add.group();
+
+  this.music = this.game.audio('music');
+  this.music.play();
 };
 
