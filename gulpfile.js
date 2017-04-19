@@ -14,6 +14,8 @@ var environment = 'development'
 
 var jsFiles = [
   'app/js/boot.js',
+  'app/js/home.js',
+  'app/js/gameover.js',
   'app/js/preloader.js',
   'app/js/home.js',
   'app/js/gameOver.js',

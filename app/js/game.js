@@ -46,6 +46,8 @@ Battleship.GameState.update = function() {
       this.enemyHit(cell);
       // check for sunken ship
       this.sunkEnemyBattleship(cell);
+      this.game.data.playerScore += cell.enemyContact;
+      console.log("Player Score: " + this.game.data.playerScore);
 
       // destroy gun and ships, reset board
       if (this.gameOver) {
@@ -59,8 +61,9 @@ Battleship.GameState.update = function() {
         this.ship4.location.destroy();
         this.ship5.location.destroy();
         this.ship6.location.destroy();
-
-        this.create();
+        this.game.data.playerScore += Math.floor(Math.random() * (36 - 4)) + 4;
+        console.log("Player Score: " + this.game.data.playerScore);
+        this.game.state.start("GameOverState");
       }
     } else {
       // there is nothing in the cell
@@ -101,7 +104,7 @@ Battleship.GameState.getExplosion = function(cell, x, y) {
   return explosion;
 };
 
-Battleship.GameState.spawnBoard = function() {
+Battleship.GameState.spawnBoard = function(board) {
   this.BOARD_COLS = Math.floor(this.game.world.width / this.CELL_SIZE_SPACED);
   this.BOARD_ROWS = Math.floor((this.game.world.height / this.CELL_SIZE_SPACED) - 1);
 
@@ -129,8 +132,8 @@ Battleship.GameState.spawnBoard = function() {
       cell.name = 'cell: ' + col.toString() + 'x' + row.toString();
       cell.inputEnabled = true;
       cell.enemyContact = 0; // var used to represent successful hit
-      cell.marker = this.matrix[row][col];
-      this.shipPlacement(cell, cell.marker);
+      cell.marker = board.matrix[row][col];
+      this.shipPlacement(cell, cell.marker, board.index);
       cell.posX = cell.x;
       cell.posY = cell.y;
       // check to see if there is a marker in cell
@@ -142,17 +145,17 @@ Battleship.GameState.spawnBoard = function() {
   }
 };
 
-Battleship.GameState.shipPlacement = function (cell, ship) {
+Battleship.GameState.shipPlacement = function (cell, ship, index) {
   switch (ship) {
 
     case 2: 
       if (this.ship2.placed !== true) {
-        if (this.levels.ships[0].ship2.angle === 90) {
+        if (this.levels.ships[index].ship2.angle === 90) {
           this.ship2.location = this.game.add.sprite(cell.x + 32, cell.y - 32, 'ship2');
-        } else if (this.levels.ships[0].ship2.angle === 0) {
+        } else if (this.levels.ships[index].ship2.angle === 0) {
           this.ship2.location = this.game.add.sprite(cell.x - 32, cell.y - 32, 'ship2');
         }
-        this.ship2.location.angle = this.levels.ships[0].ship2.angle;
+        this.ship2.location.angle = this.levels.ships[index].ship2.angle;
         this.ship2.location.visible = false;
         this.ship2.placed = true;
       }
@@ -160,12 +163,12 @@ Battleship.GameState.shipPlacement = function (cell, ship) {
 
     case 3: 
       if (this.ship3.placed !== true) {
-        if (this.levels.ships[0].ship3.angle === 90) {
+        if (this.levels.ships[index].ship3.angle === 90) {
           this.ship3.location = this.game.add.sprite(cell.x + 32, cell.y - 32, 'ship3');
-        } else if (this.levels.ships[0].ship3.angle === 0) {
+        } else if (this.levels.ships[index].ship3.angle === 0) {
           this.ship3.location = this.game.add.sprite(cell.x - 32, cell.y - 32, 'ship3');
         }
-        this.ship3.location.angle = this.levels.ships[0].ship3.angle;
+        this.ship3.location.angle = this.levels.ships[index].ship3.angle;
         this.ship3.location.visible = false;
         this.ship3.placed = true;
       }
@@ -173,12 +176,12 @@ Battleship.GameState.shipPlacement = function (cell, ship) {
 
       case 4: 
       if (this.ship4.placed !== true) {
-        if (this.levels.ships[0].ship4.angle === 90) {
+        if (this.levels.ships[index].ship4.angle === 90) {
           this.ship4.location = this.game.add.sprite(cell.x + 32, cell.y - 32, 'ship4');
-        } else if (this.levels.ships[0].ship4.angle === 0) {
+        } else if (this.levels.ships[index].ship4.angle === 0) {
           this.ship4.location = this.game.add.sprite(cell.x - 32, cell.y - 32, 'ship4');
         }
-        this.ship4.location.angle = this.levels.ships[0].ship4.angle;
+        this.ship4.location.angle = this.levels.ships[index].ship4.angle;
         this.ship4.location.visible = false;
         this.ship4.placed = true;
       }
@@ -186,12 +189,12 @@ Battleship.GameState.shipPlacement = function (cell, ship) {
 
       case 5: 
       if (this.ship5.placed !== true) {
-        if (this.levels.ships[0].ship5.angle === 90) {
+        if (this.levels.ships[index].ship5.angle === 90) {
           this.ship5.location = this.game.add.sprite(cell.x + 32, cell.y - 32, 'ship5');
-        } else if (this.levels.ships[0].ship5.angle === 0) {
+        } else if (this.levels.ships[index].ship5.angle === 0) {
           this.ship5.location = this.game.add.sprite(cell.x - 32, cell.y - 32, 'ship5');
         }
-        this.ship5.location.angle = this.levels.ships[0].ship5.angle;
+        this.ship5.location.angle = this.levels.ships[index].ship5.angle;
         this.ship5.location.visible = false;
         this.ship5.placed = true;
       }
@@ -199,12 +202,12 @@ Battleship.GameState.shipPlacement = function (cell, ship) {
 
       case 6: 
       if (this.ship6.placed !== true) {
-        if (this.levels.ships[0].ship6.angle === 90) {
+        if (this.levels.ships[index].ship6.angle === 90) {
           this.ship6.location = this.game.add.sprite(cell.x + 32, cell.y - 32, 'ship6');
-        } else if (this.levels.ships[0].ship6.angle === 0) {
+        } else if (this.levels.ships[index].ship6.angle === 0) {
           this.ship6.location = this.game.add.sprite(cell.x - 32, cell.y - 32, 'ship6');
         }
-        this.ship6.location.angle = this.levels.ships[0].ship6.angle;
+        this.ship6.location.angle = this.levels.ships[index].ship6.angle;
         this.ship6.location.visible = false;
         this.ship6.placed = true;
       }
