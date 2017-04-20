@@ -27,6 +27,9 @@ Battleship.GameState.shootBullet = function() {
   // Shoot bullet in the given coordinates
   bullet.body.velocity.x = Math.cos(bullet.rotation) * this.BULLET_SPEED;
   bullet.body.velocity.y = Math.sin(bullet.rotation) * this.BULLET_SPEED;
+
+  this.cannonShot = this.add.audio('shoot');
+  this.cannonShot.play();
 };
 
 // Update method is called every frame
@@ -47,27 +50,26 @@ Battleship.GameState.update = function() {
       // check for sunken ship
       this.sunkEnemyBattleship(cell);
       this.game.data.playerScore += cell.enemyContact;
-      console.log("Player Score: " + this.game.data.playerScore);
-
-      // destroy gun and ships, reset board
-      if (this.gameOver) {
-        this.cells.forEach(function (item) {
-          item.frame = 0;
-        }, this);
-
-        this.gun.destroy();
-        this.ship2.location.destroy();
-        this.ship3.location.destroy();
-        this.ship4.location.destroy();
-        this.ship5.location.destroy();
-        this.ship6.location.destroy();
-        this.game.data.playerScore += Math.floor(Math.random() * (36 - 4)) + 4;
-        console.log("Player Score: " + this.game.data.playerScore);
-        this.game.state.start("GameOverState");
-      }
     } else {
-      // there is nothing in the cell
-      this.miss(cell);
+        // there is nothing in the cell
+        this.miss(cell);
+    }
+
+    // destroy gun and ships, reset board
+    if (this.gameOver) {
+      this.cells.forEach(function (item) {
+        item.frame = 0;
+      }, this);
+
+      this.gun.destroy();
+      this.ship2.location.destroy();
+      this.ship3.location.destroy();
+      this.ship4.location.destroy();
+      this.ship5.location.destroy();
+      this.ship6.location.destroy();
+      this.game.data.playerScore += Math.floor(Math.random() * (36 - 4)) + 4;
+      console.log("Player Score: " + this.game.data.playerScore);
+      this.game.state.start("GameOverState");
     }
 
     if(cell.body.enable) {
@@ -225,7 +227,6 @@ Battleship.GameState.selectCell = function(cell) {
   if (cell.hasEnemy) {
     cell.enemyContact = cell.marker;
     cell.marker = 0;
-    console.log('found enemy');
   }
 };
 

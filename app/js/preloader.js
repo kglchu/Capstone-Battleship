@@ -212,7 +212,7 @@ Battleship.GameState.preload = function() {
   // sfx
   this.load.audio('explosion', 'img/assets/audio/Explosion Blast Large 05.mp3');
   this.load.audio('sunkenShip', 'img/assets/audio/Explosion Blast Debris Large 01.mp3');
-  this.load.audio('shoot', 'img/assets/audio/Explosion Cannon Fire.mp3');
+  this.load.audio('shoot', 'img/assets/audio/Explosion Cannon Fire 01.mp3');
   this.load.audio('miss', 'img/assets/audio/Liquid Water Water Splash Hands Big Splash 02.mp3');
 };
 
