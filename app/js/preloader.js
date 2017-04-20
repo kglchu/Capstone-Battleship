@@ -207,15 +207,21 @@ Battleship.GameState.preload = function() {
   this.load.spritesheet('explosion', 'img/assets/gfx/explosion.png', 128, 128);
   this.load.spritesheet('cell', 'img/assets/gfx/cells.png', 64, 64);
 
-  this.load.audio('music', '[img/assets/audio/Battleship.mp3, img/assets/audio/Battleship.ogg]');
+  // music
+  this.load.audio('music', ['img/assets/audio/Battleship.mp3', 'img/assets/audio/Battleship.ogg']);
+  // sfx
+  this.load.audio('explosion', 'img/assets/audio/Explosion Blast Large 05.mp3');
+  this.load.audio('sunkenShip', 'img/assets/audio/Explosion Blast Debris Large 01.mp3');
+  this.load.audio('shoot', 'img/assets/audio/Explosion Cannon Fire.mp3');
+  this.load.audio('miss', 'img/assets/audio/Liquid Water Water Splash Hands Big Splash 02.mp3');
 };
 
 Battleship.GameState.positionData = function() {
-  var board = {}
+  var board = {};
   var len = this.matrix.length;
   var index = Math.floor(Math.random() * (len - 1));
   board.matrix = this.matrix[index];
-  board.index = index
+  board.index = index;
 
   return board;
   
@@ -247,7 +253,7 @@ Battleship.GameState.create = function() {
 
   this.explosionGroup = this.game.add.group();
 
-  this.music = this.game.audio('music');
-  this.music.play();
+  this.music = this.add.audio('music');
+  this.music.loopFull(0.6);
 };
 
