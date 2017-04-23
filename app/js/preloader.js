@@ -189,11 +189,14 @@ Battleship.GameState.init = function() {
     
   ];
 
+  this.game.data.loser = "";
+
   // test to get game custom properties
-  console.log("Player Score: " + this.game.data.playerScore);
+  console.log("Player Score: " + this.game.data.playerScore + ': ' + this.game.data.loser);
 };
 
 Battleship.GameState.preload = function() {
+  // images
   this.load.image('bullet', 'img/assets/gfx/rocket.png');
   this.load.image('player', 'img/assets/gfx/bullet.png');
   this.load.image('enemy', 'img/assets/gfx/player.png');
@@ -204,12 +207,13 @@ Battleship.GameState.preload = function() {
   this.load.image('ship5', 'img/assets/gfx/Ship5.png');
   this.load.image('ship6', 'img/assets/gfx/Ship6.png');
 
+  // sprite sheets
   this.load.spritesheet('explosion', 'img/assets/gfx/explosion.png', 128, 128);
   this.load.spritesheet('cell', 'img/assets/gfx/cells.png', 64, 64);
 
   // music
   this.load.audio('music', ['img/assets/audio/Battleship.mp3', 'img/assets/audio/Battleship.ogg']);
-  // sfx
+  // sound effects
   this.load.audio('explosion', 'img/assets/audio/Explosion Blast Large 05.mp3');
   this.load.audio('sunkenShip', 'img/assets/audio/Explosion Blast Debris Large 01.mp3');
   this.load.audio('shoot', 'img/assets/audio/Explosion Cannon Fire 01.mp3');

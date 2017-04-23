@@ -55,9 +55,18 @@ Battleship.GameState.sunkEnemyBattleship = function(cell) {
                 this.ship6.location.visible = true;
             }
         break;
-
     }
-    
+
+    // checks if enemy lost
+
+    if (this.ship2.location.visible === true && this.ship3.location.visible === true && this.ship4.location.visible === true && this.ship5.location.visible === true && this.ship6.location.visible === true) {
+        this.game.data.loser = "enemy";
+        this.ship2.location.visible = false;
+        this.ship3.location.visible = false;
+        this.ship4.location.visible = false;
+        this.ship5.location.visible = false;
+        this.ship6.location.visible = false;
+    }
 };
 
 Battleship.GameState.miss = function(cell) {

@@ -1,4 +1,6 @@
-//TODO make sure board correctly calculates 
+// TODO make separate boards for player and enemy
+// have enemy choose random places on player board
+// have enemy "remember" where they attacked
 
 Battleship.GameState.shootBullet = function() {
   // Enforce a short delay between shots by recording
@@ -34,13 +36,10 @@ Battleship.GameState.shootBullet = function() {
 
 // Update method is called every frame
 Battleship.GameState.update = function() {
-
   this.GameOver();
   // collision method
   this.game.physics.arcade.collide(this.bulletPool, this.cells, function(bullet, cell) {
   // trigger explosion
-    console.log("cell x: " + cell.posX + " cell y: " + cell.posY);
-
     bullet.kill();
 
     if (cell.hasEnemy) {
