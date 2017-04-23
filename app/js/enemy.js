@@ -5,6 +5,10 @@ Battleship.GameState.enemyHit = function(cell) {
   // loads and plays explosion audio when hit
   this.shipHit = this.add.audio('explosion');
   this.shipHit.play();
+  if (this.NUMBER_OF_BULLETS === 0) {
+    this.NUMBER_OF_BULLETS = 6;
+    this.switchTurn();
+  }
 };
 
 Battleship.GameState.sunkEnemyBattleship = function(cell) {
@@ -75,4 +79,8 @@ Battleship.GameState.miss = function(cell) {
   // loads and plays miss audio
   this.missEnemy = this.add.audio('miss');
   this.missEnemy.play();
+  if (this.NUMBER_OF_BULLETS === 0) {
+    this.NUMBER_OF_BULLETS = 6;
+    this.switchTurn();
+  }
 };

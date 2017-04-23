@@ -192,7 +192,7 @@ Battleship.GameState.init = function() {
   this.game.data.loser = "";
 
   // test to get game custom properties
-  console.log("Player Score: " + this.game.data.playerScore + ': ' + this.game.data.loser);
+  console.log("Player Score: " + this.game.data.playerScore);
 };
 
 Battleship.GameState.preload = function() {
@@ -234,8 +234,19 @@ Battleship.GameState.positionData = function() {
 Battleship.GameState.create = function() {
   this.game.stage.backgroundColor = '#4488cc';
 
-  var board = this.positionData();
-  this.spawnBoard(board);
+  /*if (!this.game.data.playerBoard) {
+    this.game.data.playerBoard = this.positionData();
+    this.spawnBoard(this.game.data.playerBoard);
+  } else {
+    this.spawnBoard(this.game.data.playerBoard);
+  }*/
+
+  if (!this.game.data.enemyBoard) {
+    this.game.data.enemyBoard = this.positionData();
+    this.spawnBoard(this.game.data.enemyBoard);
+  } else {
+    this.spawnBoard(this.game.data.enemyBoard);
+  }
 
   this.gun = this.game.add.sprite(this.game.width / 2, this.game.height - 10, 'player');
   this.gun.anchor.setTo(0.5, 0.5);

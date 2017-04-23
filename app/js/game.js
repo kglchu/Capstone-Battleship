@@ -16,9 +16,6 @@ Battleship.GameState.shootBullet = function() {
   // if there aren't any bullets in pool, then don't shoot
   if (bullet === null || bullet === undefined) return;
 
-  //revive bullet
-  bullet.revive();
-
   // Bullets will kill themselves when they leave world bounds
   bullet.checkWorldBounds = true;
   bullet.outOfBoundsKill = true;
@@ -32,6 +29,8 @@ Battleship.GameState.shootBullet = function() {
 
   this.cannonShot = this.add.audio('shoot');
   this.cannonShot.play();
+
+  this.NUMBER_OF_BULLETS -= 1;
 };
 
 // Update method is called every frame
@@ -60,6 +59,7 @@ Battleship.GameState.update = function() {
         item.frame = 0;
       }, this);
 
+      this.music.stop();
       this.gun.destroy();
       this.ship2.location.destroy();
       this.ship3.location.destroy();
@@ -146,6 +146,27 @@ Battleship.GameState.spawnBoard = function(board) {
   }
 };
 
+Battleship.GameState.selectCell = function(cell) {
+
+  if (cell.input.pointerOver && cell.frame === 0 && this.NUMBER_OF_BULLETS > 0) {
+    // shoot bullet if touching or in bounds of cell
+    this.shootBullet();
+    // selected cell physics
+    this.game.physics.enable(cell, Phaser.Physics.ARCADE);
+    cell.body.immovable = true;
+    cell.body.allowGravity = false;
+    if (cell.hasEnemy) {
+      cell.enemyContact = cell.marker;
+      cell.marker = 0;
+    }
+  }
+  
+};
+
+Battleship.GameState.releaseCell = function(cell) {
+
+};
+
 Battleship.GameState.shipPlacement = function (cell, ship, index) {
   switch (ship) {
 
@@ -216,22 +237,19 @@ Battleship.GameState.shipPlacement = function (cell, ship, index) {
   }
 };
 
-Battleship.GameState.selectCell = function(cell) {
-
-  this.shootBullet();
-  // selected cell physics
-  this.game.physics.enable(cell, Phaser.Physics.ARCADE);
-  cell.body.immovable = true;
-  cell.body.allowGravity = false;
-  if (cell.hasEnemy) {
-    cell.enemyContact = cell.marker;
-    cell.marker = 0;
+Battleship.GameState.switchTurn = function() {
+  console.log("Player Score: " + this.game.data.playerScore);
+  // switches turn from current user [player -> enemy, enemy -> player]
+  if (this.game.data.turn = "player") {
+    this.music.stop();
+    this.game.data.turn = "enemy";
+    this.game.state.start("TurnState");
+  } else {
+    this.music.stop();
+    this.game.data.turn = "player";
+    this.game.state.start("TurnState");
   }
-};
-
-Battleship.GameState.releaseCell = function(cell) {
-
-};
+}
 
 Battleship.GameState.GameOver = function() {
   var board = {};

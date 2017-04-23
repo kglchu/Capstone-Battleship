@@ -22,16 +22,15 @@ Battleship.HomeState.create = function () {
   // Text is positioned at 0, 100
   this.intro_text = this.game.add.text(0, 0, "Tap Screen to Start", style);
   this.intro_text.setShadow(3, 3, 'rgba(0, 0, 0, 0.5)', 2);
-
   this.intro_text.setTextBounds(-75, 300, 800, 100);
-
+  
   bar.inputEnabled = true;
   bar.events.onInputDown.add(this.gameStart, this);
 
 };
 
 Battleship.HomeState.gameStart = function(state) {
-  this.game.data.playerScore = 0;
+  this.game.data.turn = "player";
   this.game.state.start("GameState");
 };
 
