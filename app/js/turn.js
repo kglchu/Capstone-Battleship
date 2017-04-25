@@ -11,7 +11,7 @@ Battleship.TurnState.preload = function () {
 };
 
 Battleship.TurnState.create = function () {
-  this.game.stage.backgroundColor = '#4488cc';
+  this.game.stage.backgroundColor = '#3D3D3C';
 
   var bar = this.game.add.graphics();
   bar.beginFill(383533, 0.2);

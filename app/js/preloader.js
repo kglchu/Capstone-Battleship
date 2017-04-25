@@ -1,7 +1,7 @@
 Battleship.GameState.init = function() {
   // this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
   this.game.physics.startSystem(Phaser.Physics.ARCADE);
-
+  this.reservedBullets = 6;
   this.matrix = [
     [ // board 1
       [0, 0, 0, 0, 0, 0, 0, 0, 2, 2],
@@ -223,7 +223,7 @@ Battleship.GameState.preload = function() {
 Battleship.GameState.positionData = function() {
   var board = {};
   var len = this.matrix.length;
-  var index = Math.floor(Math.random() * (len - 1));
+  var index = this.game.rnd.integerInRange(0, (len-1));
   board.matrix = this.matrix[index];
   board.index = index;
 
@@ -234,25 +234,25 @@ Battleship.GameState.positionData = function() {
 Battleship.GameState.create = function() {
   this.game.stage.backgroundColor = '#4488cc';
 
-  /*if (!this.game.data.playerBoard) {
+  if (!this.game.data.playerBoard && this.game.data.turn == "enemy") {
     this.game.data.playerBoard = this.positionData();
     this.spawnBoard(this.game.data.playerBoard);
-  } else {
+  } else if (this.game.data.turn == "enemy"){
     this.spawnBoard(this.game.data.playerBoard);
-  }*/
+  }
 
-  if (!this.game.data.enemyBoard) {
+  if (!this.game.data.enemyBoard && this.game.data.turn == "player") {
     this.game.data.enemyBoard = this.positionData();
     this.spawnBoard(this.game.data.enemyBoard);
-  } else {
-    this.spawnBoard(this.game.data.enemyBoard);
-  }
+   } else if (this.game.data.turn == "player"){
+     this.spawnBoard(this.game.data.enemyBoard);
+   }
 
   this.gun = this.game.add.sprite(this.game.width / 2, this.game.height - 10, 'player');
   this.gun.anchor.setTo(0.5, 0.5);
 
   this.bulletPool = this.game.add.group();
-  for (var i = 0; i < this.NUMBER_OF_BULLETS; i++) {
+  for (var i = 0; i < this.reservedBullets; i++) {
     var bullet = this.game.add.sprite(0, 0, 'bullet');
     this.bulletPool.add(bullet);
 
@@ -272,3 +272,103 @@ Battleship.GameState.create = function() {
   this.music.loopFull(0.6);
 };
 
+Battleship.GameState.shipPlacement = function (cell, ship, index) {
+  switch (ship) {
+
+    case 2: 
+      if (this.ship2.placed !== true) {
+        if (this.levels.ships[index].ship2.angle === 90) {
+          this.ship2.location = this.game.add.sprite(cell.x + 32, cell.y - 32, 'ship2');
+        } else if (this.levels.ships[index].ship2.angle === 0) {
+          this.ship2.location = this.game.add.sprite(cell.x - 32, cell.y - 32, 'ship2');
+        }
+        this.ship2.location.angle = this.levels.ships[index].ship2.angle;
+        this.ship2.location.visible = false;
+        this.ship2.placed = true;
+      }
+      break;
+
+    case 3: 
+      if (this.ship3.placed !== true) {
+        if (this.levels.ships[index].ship3.angle === 90) {
+          this.ship3.location = this.game.add.sprite(cell.x + 32, cell.y - 32, 'ship3');
+        } else if (this.levels.ships[index].ship3.angle === 0) {
+          this.ship3.location = this.game.add.sprite(cell.x - 32, cell.y - 32, 'ship3');
+        }
+        this.ship3.location.angle = this.levels.ships[index].ship3.angle;
+        this.ship3.location.visible = false;
+        this.ship3.placed = true;
+      }
+      break;
+
+      case 4: 
+      if (this.ship4.placed !== true) {
+        if (this.levels.ships[index].ship4.angle === 90) {
+          this.ship4.location = this.game.add.sprite(cell.x + 32, cell.y - 32, 'ship4');
+        } else if (this.levels.ships[index].ship4.angle === 0) {
+          this.ship4.location = this.game.add.sprite(cell.x - 32, cell.y - 32, 'ship4');
+        }
+        this.ship4.location.angle = this.levels.ships[index].ship4.angle;
+        this.ship4.location.visible = false;
+        this.ship4.placed = true;
+      }
+      break;
+
+      case 5: 
+      if (this.ship5.placed !== true) {
+        if (this.levels.ships[index].ship5.angle === 90) {
+          this.ship5.location = this.game.add.sprite(cell.x + 32, cell.y - 32, 'ship5');
+        } else if (this.levels.ships[index].ship5.angle === 0) {
+          this.ship5.location = this.game.add.sprite(cell.x - 32, cell.y - 32, 'ship5');
+        }
+        this.ship5.location.angle = this.levels.ships[index].ship5.angle;
+        this.ship5.location.visible = false;
+        this.ship5.placed = true;
+      }
+      break;
+
+      case 6: 
+      if (this.ship6.placed !== true) {
+        if (this.levels.ships[index].ship6.angle === 90) {
+          this.ship6.location = this.game.add.sprite(cell.x + 32, cell.y - 32, 'ship6');
+        } else if (this.levels.ships[index].ship6.angle === 0) {
+          this.ship6.location = this.game.add.sprite(cell.x - 32, cell.y - 32, 'ship6');
+        }
+        this.ship6.location.angle = this.levels.ships[index].ship6.angle;
+        this.ship6.location.visible = false;
+        this.ship6.placed = true;
+      }
+      break;
+  }
+};
+
+Battleship.GameState.switchTurn = function() {
+  console.log("Player Score: " + this.game.data.playerScore);
+  // switches turn from current user [player -> enemy, enemy -> player]
+  if (this.game.data.turn == "player") {
+    this.music.stop();
+    this.game.data.turn = "enemy";
+    this.game.state.start("TurnState");
+  } else {
+    this.music.stop();
+    this.game.data.turn = "player";
+    this.game.state.start("TurnState");
+  }
+};
+
+Battleship.GameState.GameOverPlayer = function() {
+  var board = {};
+  var boardScore = 0;
+
+  board = this.cells.children;
+  for (var i = 0; i < board.length; i++) {
+    boardScore += board[i].marker;
+  }
+
+  if (boardScore <=0 && this.game.data.turn == "player") {
+    this.gameOver = true;
+    this.game.data.loser = "enemy";
+  } else {
+    this.gameOver = false;
+  }
+};

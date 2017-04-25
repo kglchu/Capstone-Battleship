@@ -4,7 +4,7 @@ Battleship.GameState = Battleship.GameState || {};
 
 Battleship.GameState.SHOT_DELAY = 200; // milliseconds
 Battleship.GameState.BULLET_SPEED = 850; // pixels per second
-Battleship.GameState.NUMBER_OF_BULLETS = 6;
+Battleship.GameState.reservedBullets = 6;
 
 // board constants
 Battleship.GameState.BOARD_COLS; // columns
@@ -24,9 +24,3 @@ Battleship.GameState.ship4 = {};
 Battleship.GameState.ship5 = {};
 Battleship.GameState.ship6 = {};
 Battleship.GameState.gameOver = false;
-
-/* 
-  ships are objects and created with the board
-  they have an angle property
-  uses switch statements for checking the ships location
-*/
