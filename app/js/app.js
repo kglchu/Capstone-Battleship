@@ -1,5 +1,5 @@
 // Create new Phaser Game object, with dimensions
-Battleship.game = new Phaser.Game(664, 730, Phaser.AUTO, 'game-canvas');
+Battleship.game = new Phaser.Game(664, 794, Phaser.AUTO, 'game-canvas');
 //  custom properties
 Battleship.game.data = {};
 
@@ -10,9 +10,13 @@ Battleship.game.data.turn = "player";
 // score for player
 Battleship.game.data.playerScore = 0;
 
-Battleship.game.data.currentEnemyBoard = {};
-Battleship.game.data.currentEnemyBoard.cellStatus = 0;
+Battleship.game.data.playerBoard = null;
+Battleship.game.data.enemyBoard = null;
 
+Battleship.game.data.currentEnemyBoard = {};
+Battleship.game.data.currentPlayerBoard = {};
+
+// trigger for enemy AI to start shooting
 Battleship.game.data.isShooting = false;
 
 // Add first state to game object

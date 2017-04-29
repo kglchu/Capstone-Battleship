@@ -1,65 +1,113 @@
 // TODO Keep 'memory' of board for both player and enemy
 
-Battleship.GameState.spawnBoard = function(board) {
-  this.BOARD_COLS = Math.floor(this.game.world.width / this.CELL_SIZE_SPACED);
-  this.BOARD_ROWS = Math.floor((this.game.world.height / this.CELL_SIZE_SPACED) - 1);
+Battleship.GameState.spawnEnemyBoard = function(board) {
+  this.BOARD_COLS = 10; //Math.floor(this.game.world.width / this.CELL_SIZE_SPACED);
+  this.BOARD_ROWS = 10; //Math.floor((this.game.world.height / this.CELL_SIZE_SPACED) - 1);
 
   this.cells = this.game.add.group();
-  this.playerCells = this.game.add.group();
 
-
-  // used to check if ship is sunk by adding the hit score(enemyContact)
+  // resetting score when hitting the respective ship
   this.cells.ship2 = 0;
   this.cells.ship3 = 0;
   this.cells.ship4 = 0;
   this.cells.ship5 = 0;
   this.cells.ship6 = 0;
 
-  // sets current visibility to false
-  this.ship2.placed = false;
-  this.ship3.placed = false;
-  this.ship4.placed = false;
-  this.ship5.placed = false;
-  this.ship6.placed = false;
+  // sets enemy ships visibility to false for enemy board
+  this.enemyShips.ship2.placed = false;
+  this.enemyShips.ship3.placed = false;
+  this.enemyShips.ship4.placed = false;
+  this.enemyShips.ship5.placed = false;
+  this.enemyShips.ship6.placed = false;
 
-  // build the board for player to attack enemy
-  if (this.game.data.turn == "player") {
-    for (var col = 0; col < this.BOARD_COLS; col++) {
-      for (var row = 0; row < this.BOARD_ROWS; row++) {
-        var cell = this.cells.create((col * this.CELL_SIZE_SPACED) + this.CELL_SIZE_SPACED/2 + 2, (row * this.CELL_SIZE_SPACED + this.CELL_SIZE/2 + 2), 'cell', 0);
-        cell.anchor.setTo(0.5, 0.5);
-        cell.name = 'cell: ' + col.toString() + 'x' + row.toString();
-        cell.inputEnabled = true;
-        cell.enemyContact = 0; // var used to represent successful hit
-        cell.marker = board.matrix[row][col];
-        this.shipPlacement(cell, cell.marker, board.index);
-        cell.posX = cell.x;
-        cell.posY = cell.y;
-        // check to see if there is a marker in cell
-        cell.hasEnemy = cell.marker > 0;
-        // click events
-        cell.events.onInputDown.add(this.selectCell, this);
-      }
+  for (var col = 0; col < this.BOARD_COLS; col++) {
+    for (var row = 0; row < this.BOARD_ROWS; row++) {
+      var cell = this.cells.create((col * this.CELL_SIZE_SPACED) + this.CELL_SIZE_SPACED/2 + 2, (row * this.CELL_SIZE_SPACED + this.CELL_SIZE/2 + 64), 'cell', 0);
+      cell.anchor.setTo(0.5, 0.5);
+      cell.name = 'cell: ' + col.toString() + 'x' + row.toString();
+      cell.inputEnabled = true;
+      cell.enemyContact = 0; // var used to represent successful hit
+      cell.marker = board.matrix[row][col];
+      this.shipPlacement(this.enemyShips, cell, cell.marker, false, board.index);
+      cell.posX = cell.x;
+      cell.posY = cell.y;
+      // check to see if there is a marker in cell
+      cell.hasEnemy = cell.marker > 0;
+      // click events
+      cell.events.onInputDown.add(this.selectCell, this);
     }
-    this.game.data.currentEnemyBoard = this.cells;
-    // build board for enemy to attack
-  } else if (this.game.data.turn == "enemy") { // pCell = player board cells
-      for (var Col = 0; Col < this.BOARD_COLS; Col++) {
-      for (var Row = 0; Row < this.BOARD_ROWS; Row++) {
-        var pCell = this.playerCells.create((Col * this.CELL_SIZE_SPACED) + this.CELL_SIZE_SPACED/2 + 2, (Row * this.CELL_SIZE_SPACED + this.CELL_SIZE/2 + 2), 'cell', 0);
-        pCell.anchor.setTo(0.5, 0.5);
-        pCell.name = 'cell: ' + Col.toString() + 'x' + Row.toString();
-        pCell.enemyContact = 0; // var used to represent successful hit
-        pCell.marker = board.matrix[Row][Col];
-        this.shipPlacement(pCell, pCell.marker, board.index);
-        pCell.posX = pCell.x;
-        pCell.posY = pCell.y;
-        // check to see if there is a marker in cell
-        pCell.hasEnemy = pCell.marker > 0;
-      }
-    }
-    this.game.data.currentPlayerBoard = this.playerCells;
   }
+  this.game.data.currentEnemyBoard = this.cells;
+};
+
+// checks for any player ship that has sunk
+Battleship.GameState.sunkPlayerBattleship = function(cell) {
+    // check to see if all markers of the enemy have been hit
+    switch (cell.enemyContact)
+    {
+        case 2:
+            this.playerCells.ship2 += cell.enemyContact;
+            if (this.playerCells.ship2 === 4) {
+                this.sunkShip = this.add.audio('sunkenShip');
+                this.sunkShip.play();
+                //this.playerShips.ship2.location.visible = true;
+                this.playerShips.ship2.sunken = true;
+                return true;
+            }
+            return false;
+
+        case 3:
+            this.playerCells.ship3 += cell.enemyContact;
+            if (this.playerCells.ship3 === 9) {
+                this.sunkShip = this.add.audio('sunkenShip');
+                this.sunkShip.play();
+                //this.playerShips.ship3.location.visible = true;
+                this.playerShips.ship2.sunken = true;
+                return true;
+            }
+            return false;
+
+        case 4:
+            this.playerCells.ship4 += cell.enemyContact;
+            if (this.playerCells.ship4 === 16) {
+                this.sunkShip = this.add.audio('sunkenShip');
+                this.sunkShip.play();
+                //this.playerShips.ship4.location.visible = true;
+                this.playerShips.ship2.sunken = true;
+                return true;
+            }
+            return false;
+
+        case 5:
+            this.playerCells.ship5 += cell.enemyContact;
+            if (this.playerCells.ship5 === 25) {
+                this.sunkShip = this.add.audio('sunkenShip');
+                this.sunkShip.play();
+                //this.playerShips.ship5.location.visible = true;
+                this.playerShips.ship2.sunken = true;
+                return true;
+            }
+            return false;
+
+        case 6:
+            this.playerCells.ship6 += cell.enemyContact;
+            if (this.playerCells.ship6 === 36) {
+                this.sunkShip = this.add.audio('sunkenShip');
+                this.sunkShip.play();
+                //this.playerShips.ship6.location.visible = true;
+                this.playerShips.ship2.sunken = true;
+                return true;
+            }
+            return false;
+
+        default: 
+        return false;
+    }
+
+    // checks if enemy lost
+    if (this.playerShips.ship2.sunken === true && this.playerShips.ship3.sunken === true && this.playerShips.ship4.sunken === true && this.playerShips.ship5.sunken === true && this.playerShips.ship6.sunken === true) {
+        this.game.data.loser = "player";
+    }
 };
 
 Battleship.GameState.shootBullet = function() {
@@ -97,18 +145,24 @@ Battleship.GameState.shootBullet = function() {
 // Update method is called every frame
 Battleship.GameState.update = function() {
   //Aim the gun at mouse pointer
-  this.GameOverPlayer();
-  this.GameOverEnemy();
+  
+  
   if (this.game.data.turn == "player") {
     this.gun.rotation = this.game.physics.arcade.angleToPointer(this.gun);
   } else if (this.game.data.turn == "enemy"){
-    if (!this.game.data.isShooting) this.simulateShooting(this.playerCells);
+    console.log("enemy turn");
+    if (!this.game.data.isShooting) {
+      console.log("enemy shooting");
+      this.simulateShooting(this.playerCells);
+    }
   }
 
   // collision method
   if (this.game.data.turn == "player") {
+    this.GameOverPlayer();
     this.checkPlayerCollision();
   } else if (this.game.data.turn == "enemy") {
+    this.GameOverEnemy();
     this.checkEnemyCollision();
   }
 };
@@ -138,9 +192,52 @@ Battleship.GameState.getExplosion = function(cell, x, y) {
   return explosion;
 };
 
-Battleship.GameState.selectCell = function(cell) {
+Battleship.GameState.getHitLocation = function (target,cell, x, y) {
+//get the first dead explosion from the explosionGroup
+    var hit = target === "player" ? this.hitGroup.getFirstDead() : this.hitEnemyGroup.getFirstDead();
 
-  if (cell.input.pointerOver && cell.frame === 0 && this.game.data.turn == "player") {
+    //if ther aren't any available, create a new one
+    if( hit === null)
+    {
+        hit = this.game.add.sprite(0, 0, 'cell', 1);
+        hit.anchor.setTo(0.5, 0.5);
+
+        //add explosion sprite to the group
+        if(target === "player") {
+          this.hitGroup.add(hit);
+        } else {
+          this.hitEnemyGroup.add(hit);
+        }
+        
+        
+    }
+
+    hit.revive();
+
+    //move the explosion to the given coordinates
+    hit.x = x;
+    hit.y = y;
+
+    // Return the explosion itself in case we want to do anything else with it
+    return hit;
+
+};
+
+Battleship.GameState.selectCell = function(cell) {
+  // enemy grabbing cell and starting the shoot bullet method
+  if(cell.frame === 0 && this.game.data.turn == "enemy") {
+      // shoot bullet at selected cell from the simulated shooting method
+      this.shootBullet();
+      // selected cell physics
+      this.game.physics.enable(cell, Phaser.Physics.ARCADE);
+      cell.body.immovable = true;
+      cell.body.allowGravity = false;
+      if (cell.hasEnemy) {
+        cell.enemyContact = cell.marker;
+        cell.marker = 0;
+      }
+      // player shoots at cell as long as mouse pointer hovers over it
+    } else if (cell.input.pointerOver && cell.frame === 0 && this.game.data.turn == "player" && this.reservedBullets > 0) {
     // shoot bullet if touching or in bounds of cell
     this.shootBullet();
     // selected cell physics
@@ -151,17 +248,21 @@ Battleship.GameState.selectCell = function(cell) {
       cell.enemyContact = cell.marker;
       cell.marker = 0;
     }
-  }
+  }  
 };
 
 Battleship.GameState.checkPlayerCollision = function() {
   this.game.physics.arcade.collide(this.bulletPool, this.cells, function(bullet, cell) {
   // trigger explosion
   bullet.kill();
-
+    // disable all other cells to collide with selected cell
+    if(cell.body.enable) {
+      cell.body.enable = false;
+    }
     // enemy was hit
     if (cell.hasEnemy) {
       this.getExplosion(cell, cell.posX, cell.posY);
+      this.getHitLocation("player",cell, cell.x, cell.y);
       this.enemyHit(cell);
       // check for sunken ship
       this.sunkEnemyBattleship(cell);
@@ -171,26 +272,29 @@ Battleship.GameState.checkPlayerCollision = function() {
         this.miss(cell);
     }
 
+    if (this.reservedBullets === 0) {
+      console.log("switching turn from player");
+      setTimeout(function() {
+        Battleship.GameState.switchTurn('enemy');
+      }, 500);
+    }
+
     // destroy gun and ships, reset board
     if (this.gameOver) {
       this.cells.forEach(function (item) {
         item.frame = 0;
       }, this);
 
-      this.music.stop();
+      this.music.destroy();
       this.gun.destroy();
-      this.ship2.location.destroy();
-      this.ship3.location.destroy();
-      this.ship4.location.destroy();
-      this.ship5.location.destroy();
-      this.ship6.location.destroy();
+      this.enemyShips.ship2.location.destroy();
+      this.enemyShips.ship3.location.destroy();
+      this.enemyShips.ship4.location.destroy();
+      this.enemyShips.ship5.location.destroy();
+      this.enemyShips.ship6.location.destroy();
       this.game.data.playerScore += Math.floor(Math.random() * (36 - 4)) + 4;
       console.log("Player Score: " + this.game.data.playerScore);
       this.game.state.start("GameOverState");
-    }
-
-    if(cell.body.enable) {
-      cell.body.enable = false;
     }
   }, null, this);
 };

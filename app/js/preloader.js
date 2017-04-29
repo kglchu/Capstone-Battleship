@@ -1,7 +1,41 @@
 Battleship.GameState.init = function() {
+  this.levels = {};
+  this.ship2 = {};
+  this.ship3 = {};
+  this.ship4 = {};
+  this.ship5 = {};
+  this.ship6 = {};
+
+  this.playerShips = {
+    'ship2' : {},
+    'ship3' : {},
+    'ship4' : {},
+    'ship5' : {},
+    'ship6' : {},
+  };
+
+  this.enemyShips = {
+    'ship2' : {},
+    'ship3' : {},
+    'ship4' : {},
+    'ship5' : {},
+    'ship6' : {},
+  };
+
+  this.gameOver = false;
+  this.selectedCell = null;
+
+  this.lastBulletShotAt = undefined;
+  this.cells;
+  this.playerCells;
+  this.selectedCell = null;
+  this.selectedCellStartPos = { x: 0, y: 0 };
+
   // this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
   this.game.physics.startSystem(Phaser.Physics.ARCADE);
   this.reservedBullets = 6;
+  this.game.data.loser = "";
+
   this.matrix = [
     [ // board 1
       [0, 0, 0, 0, 0, 0, 0, 0, 2, 2],
@@ -186,10 +220,9 @@ Battleship.GameState.init = function() {
         'angle': 90
       }
     }
-    
   ];
 
-  this.game.data.loser = "";
+  this.game.data.isShooting = true;
 
   // test to get game custom properties
   console.log("Player Score: " + this.game.data.playerScore);
@@ -234,19 +267,17 @@ Battleship.GameState.positionData = function() {
 Battleship.GameState.create = function() {
   this.game.stage.backgroundColor = '#4488cc';
 
-  if (!this.game.data.playerBoard && this.game.data.turn == "enemy") {
-    this.game.data.playerBoard = this.positionData();
-    this.spawnBoard(this.game.data.playerBoard);
-  } else if (this.game.data.turn == "enemy"){
-    this.spawnBoard(this.game.data.playerBoard);
-  }
+  // draws enemy board for player
+  this.game.data.enemyBoard = this.positionData();
+  this.spawnEnemyBoard(this.game.data.enemyBoard);
 
-  if (!this.game.data.enemyBoard && this.game.data.turn == "player") {
-    this.game.data.enemyBoard = this.positionData();
-    this.spawnBoard(this.game.data.enemyBoard);
-   } else if (this.game.data.turn == "player"){
-     this.spawnBoard(this.game.data.enemyBoard);
-   }
+  // draws the player board for enemy
+  setTimeout(function(){
+    Battleship.game.data.playerBoard = Battleship.GameState.positionData();
+    Battleship.GameState.spawnPlayerBoard(Battleship.game.data.playerBoard);
+    Battleship.GameState.playerCells.visible = false;
+  }, 1000)
+  
 
   this.gun = this.game.add.sprite(this.game.width / 2, this.game.height - 10, 'player');
   this.gun.anchor.setTo(0.5, 0.5);
@@ -262,99 +293,180 @@ Battleship.GameState.create = function() {
     bullet.kill();
   }
 
+  // creates a banner message
+  this.bannerMessage();
+
   // simulates mouse pointer in center of stage
   this.game.input.activePointer.x = this.game.width / 2;
   this.game.input.activePointer.y = this.game.height / 2;
 
   this.explosionGroup = this.game.add.group();
+  this.hitGroup = this.game.add.group();
+  this.hitEnemyGroup = this.game.add.group();
 
   this.music = this.add.audio('music');
-  this.music.loopFull(0.6);
+  this.music.loopFull(0.4);
 };
 
-Battleship.GameState.shipPlacement = function (cell, ship, index) {
+Battleship.GameState.bannerMessage = function() {
+  // banner message for changing turns
+  this.bar = this.add.graphics();
+  this.bar.beginFill(0x000000, 0.2);
+  this.bar.drawRect(0, this.game.world.centerY - 50, 800, 100);
+
+  var style = { font: "bold 32px Arial", fill: "#FFF"};
+
+  // Text for banner
+  if (this.game.data.turn == "player") {
+    this.msg = this.add.text(this.game.world.centerX, this.game.world.centerY, "Player's Turn!", style);
+    this.msg.anchor.setTo(0.5);
+    this.msg.setShadow(3, 3, 'rgba(0, 0, 0, 0.5', 2);
+  } else if (this.game.data.turn == "enemy") {
+    this.msg = this.add.text(this.game.world.centerX, this.game.world.centerY, "Enemy's Turn!", style);
+    this.msg.anchor.setTo(0.5);
+    this.msg.setShadow(3, 3, 'rgba(0, 0, 0, 0.5', 2);
+  }
+
+  this.bar.visible = false;
+  this.msg.visible = false;
+};
+
+// placing the enemy ships
+Battleship.GameState.shipPlacement = function (target, cell, ship, isVisible, index) {
   switch (ship) {
 
     case 2: 
-      if (this.ship2.placed !== true) {
+      if (target.ship2.placed !== true) {
         if (this.levels.ships[index].ship2.angle === 90) {
-          this.ship2.location = this.game.add.sprite(cell.x + 32, cell.y - 32, 'ship2');
+          target.ship2.location = this.game.add.sprite(cell.x + 32, cell.y - 32, 'ship2');
         } else if (this.levels.ships[index].ship2.angle === 0) {
-          this.ship2.location = this.game.add.sprite(cell.x - 32, cell.y - 32, 'ship2');
+          target.ship2.location = this.game.add.sprite(cell.x - 32, cell.y - 32, 'ship2');
         }
-        this.ship2.location.angle = this.levels.ships[index].ship2.angle;
-        this.ship2.location.visible = false;
-        this.ship2.placed = true;
+        target.ship2.location.angle = this.levels.ships[index].ship2.angle;
+        target.ship2.location.visible = isVisible;
+        target.ship2.placed = true;
       }
       break;
 
     case 3: 
-      if (this.ship3.placed !== true) {
+      if (target.ship3.placed !== true) {
         if (this.levels.ships[index].ship3.angle === 90) {
-          this.ship3.location = this.game.add.sprite(cell.x + 32, cell.y - 32, 'ship3');
+          target.ship3.location = this.game.add.sprite(cell.x + 32, cell.y - 32, 'ship3');
         } else if (this.levels.ships[index].ship3.angle === 0) {
-          this.ship3.location = this.game.add.sprite(cell.x - 32, cell.y - 32, 'ship3');
+          target.ship3.location = this.game.add.sprite(cell.x - 32, cell.y - 32, 'ship3');
         }
-        this.ship3.location.angle = this.levels.ships[index].ship3.angle;
-        this.ship3.location.visible = false;
-        this.ship3.placed = true;
+        target.ship3.location.angle = this.levels.ships[index].ship3.angle;
+        target.ship3.location.visible = isVisible;
+        target.ship3.placed = true;
       }
       break;
 
       case 4: 
-      if (this.ship4.placed !== true) {
+      if (target.ship4.placed !== true) {
         if (this.levels.ships[index].ship4.angle === 90) {
-          this.ship4.location = this.game.add.sprite(cell.x + 32, cell.y - 32, 'ship4');
+          target.ship4.location = this.game.add.sprite(cell.x + 32, cell.y - 32, 'ship4');
         } else if (this.levels.ships[index].ship4.angle === 0) {
-          this.ship4.location = this.game.add.sprite(cell.x - 32, cell.y - 32, 'ship4');
+          target.ship4.location = this.game.add.sprite(cell.x - 32, cell.y - 32, 'ship4');
         }
-        this.ship4.location.angle = this.levels.ships[index].ship4.angle;
-        this.ship4.location.visible = false;
-        this.ship4.placed = true;
+        target.ship4.location.angle = this.levels.ships[index].ship4.angle;
+        target.ship4.location.visible = isVisible;
+        target.ship4.placed = true;
       }
       break;
 
       case 5: 
-      if (this.ship5.placed !== true) {
+      if (target.ship5.placed !== true) {
         if (this.levels.ships[index].ship5.angle === 90) {
-          this.ship5.location = this.game.add.sprite(cell.x + 32, cell.y - 32, 'ship5');
+          target.ship5.location = this.game.add.sprite(cell.x + 32, cell.y - 32, 'ship5');
         } else if (this.levels.ships[index].ship5.angle === 0) {
-          this.ship5.location = this.game.add.sprite(cell.x - 32, cell.y - 32, 'ship5');
+          target.ship5.location = this.game.add.sprite(cell.x - 32, cell.y - 32, 'ship5');
         }
-        this.ship5.location.angle = this.levels.ships[index].ship5.angle;
-        this.ship5.location.visible = false;
-        this.ship5.placed = true;
+        target.ship5.location.angle = this.levels.ships[index].ship5.angle;
+        target.ship5.location.visible = isVisible;
+        target.ship5.placed = true;
       }
       break;
 
       case 6: 
-      if (this.ship6.placed !== true) {
+      if (target.ship6.placed !== true) {
         if (this.levels.ships[index].ship6.angle === 90) {
-          this.ship6.location = this.game.add.sprite(cell.x + 32, cell.y - 32, 'ship6');
+          target.ship6.location = this.game.add.sprite(cell.x + 32, cell.y - 32, 'ship6');
         } else if (this.levels.ships[index].ship6.angle === 0) {
-          this.ship6.location = this.game.add.sprite(cell.x - 32, cell.y - 32, 'ship6');
+          target.ship6.location = this.game.add.sprite(cell.x - 32, cell.y - 32, 'ship6');
         }
-        this.ship6.location.angle = this.levels.ships[index].ship6.angle;
-        this.ship6.location.visible = false;
-        this.ship6.placed = true;
+        target.ship6.location.angle = this.levels.ships[index].ship6.angle;
+        target.ship6.location.visible = isVisible;
+        target.ship6.placed = true;
       }
       break;
   }
 };
 
-Battleship.GameState.switchTurn = function() {
+Battleship.GameState.switchTurn = function(player) {
   console.log("Player Score: " + this.game.data.playerScore);
+  console.log("writing message...");
   // switches turn from current user [player -> enemy, enemy -> player]
-  if (this.game.data.turn == "player") {
-    this.music.stop();
-    this.game.data.turn = "enemy";
-    this.game.state.start("TurnState");
-  } else {
-    this.music.stop();
+  if (player === "player") {
+    //this.music.stop();
+    this.reservedBullets = 6;
     this.game.data.turn = "player";
-    this.game.state.start("TurnState");
+    this.bannerMessage();
+    this.viewMessage();
+  } else if (player === "enemy") {
+    //this.music.stop();
+    this.reservedBullets = 6;
+    this.game.data.turn = "enemy";
+    this.bannerMessage();
+    this.viewMessage();
   }
 };
+
+Battleship.GameState.viewMessage = function() {
+  console.log("changing boards");
+  if (this.game.data.turn == "player") {
+    // change visibility of message before switching boards
+    this.bar.visible = true;
+    this.msg.visible = true;
+    changeBoardsToEnemys(false);
+    //this.cells.ignoreChildInput = false;
+    setTimeout(function(){
+      Battleship.GameState.bar.visible = false;
+      Battleship.GameState.msg.visible = false;
+    }, 3000);
+    
+  } else if (this.game.data.turn == "enemy") {
+    // change visibility of message before switching boards
+    this.bar.visible = true;
+    this.msg.visible = true;
+    changeBoardsToEnemys(true);
+    //this.cells.ignoreChildInput = true;
+    setTimeout(function(){
+      Battleship.GameState.bar.visible = false;
+      Battleship.GameState.msg.visible = false;
+      Battleship.game.data.isShooting = false;
+    }, 3000);
+    
+  }
+};
+
+function changeBoardsToEnemys(isEnemys) {
+  Battleship.GameState.cells.visible = !isEnemys
+  Battleship.GameState.playerCells.visible = isEnemys
+  Battleship.GameState.hitGroup.visible = !isEnemys
+  Battleship.GameState.hitEnemyGroup.visible = isEnemys
+  // if players turn, show all sunken enemy ships and hide the rest along with the enemys board ships, else hide all enemy ships and show all players ships
+  if (Battleship.GameState.cells.visible) {
+    for (var i = 2; i < 7; i++) {
+      Battleship.GameState.playerShips['ship' + i].location.visible = false;
+      Battleship.GameState.enemyShips['ship' + i].location.visible = Battleship.GameState.enemyShips['ship' + i].sunken;
+    }
+  } else {
+    for (var i = 2; i < 7; i++) {
+      Battleship.GameState.playerShips['ship' + i].location.visible = true;
+      Battleship.GameState.enemyShips['ship' + i].location.visible = false;
+    }
+  }
+}
 
 Battleship.GameState.GameOverPlayer = function() {
   var board = {};
