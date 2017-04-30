@@ -4,6 +4,7 @@ Battleship.GameState = Battleship.GameState || {};
 
 Battleship.GameState.SHOT_DELAY = 200; // milliseconds
 Battleship.GameState.BULLET_SPEED = 850; // pixels per second
+Battleship.GameState.NUMBER_OF_BULLETS = 1;
 
 // board constants
 Battleship.GameState.BOARD_COLS; // columns

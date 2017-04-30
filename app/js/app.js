@@ -1,5 +1,5 @@
 // Create new Phaser Game object, with dimensions
-Battleship.game = new Phaser.Game(664, 794, Phaser.AUTO, 'game-canvas');
+Battleship.game = new Phaser.Game(664, 846, Phaser.AUTO, 'game-canvas');
 //  custom properties
 Battleship.game.data = {};
 

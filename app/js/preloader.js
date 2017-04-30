@@ -1,4 +1,9 @@
 Battleship.GameState.init = function() {
+  // player always starts first
+  this.game.data.turn = "player";
+  this.scoreText = "Player Score: ";
+  this.ammo = null;
+
   this.levels = {};
   this.ship2 = {};
   this.ship3 = {};
@@ -34,7 +39,8 @@ Battleship.GameState.init = function() {
   // this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
   this.game.physics.startSystem(Phaser.Physics.ARCADE);
   this.reservedBullets = 6;
-  this.game.data.loser = "";
+  this.game.data.loser = null;
+  this.game.isReady = false;  // need to make sure that all objects are instantiated before processing the Phaser GameState Update method
 
   this.matrix = [
     [ // board 1
@@ -111,14 +117,16 @@ Battleship.GameState.init = function() {
     ]
   ];
 
+  // angle 0 is horizontal
+  // angle 90 is vertical
   this.levels.ships = [
     // board 1 ships
     {
       'ship2': {
-        'angle': 0
+        'angle': 0 
       },
       'ship3': {
-        'angle': 90
+        'angle': 90 
       },
       'ship4': {
         'angle': 0
@@ -223,9 +231,6 @@ Battleship.GameState.init = function() {
   ];
 
   this.game.data.isShooting = true;
-
-  // test to get game custom properties
-  console.log("Player Score: " + this.game.data.playerScore);
 };
 
 Battleship.GameState.preload = function() {
@@ -271,42 +276,59 @@ Battleship.GameState.create = function() {
   this.game.data.enemyBoard = this.positionData();
   this.spawnEnemyBoard(this.game.data.enemyBoard);
 
+  // group that draws the missiles representing the reservedBullets variable
+  this.ammo = this.game.add.group();
+  this.enemyAmmo = this.game.add.group();
+  // draw text associated with ammo
+  this.drawAmmoText();
+  // draw bullet/missiles representing total reservedBullets
+  this.drawAmmoSprites();
+  this.enemyAmmo.setAll('visible', false);
+
   // draws the player board for enemy
   setTimeout(function(){
     Battleship.game.data.playerBoard = Battleship.GameState.positionData();
     Battleship.GameState.spawnPlayerBoard(Battleship.game.data.playerBoard);
     Battleship.GameState.playerCells.visible = false;
-  }, 1000)
-  
 
-  this.gun = this.game.add.sprite(this.game.width / 2, this.game.height - 10, 'player');
-  this.gun.anchor.setTo(0.5, 0.5);
+    Battleship.GameState.gun = Battleship.game.add.sprite(Battleship.game.width / 2, Battleship.game.height - 10, 'player');
+    Battleship.GameState.gun.anchor.setTo(0.5, 0.5);
 
-  this.bulletPool = this.game.add.group();
-  for (var i = 0; i < this.reservedBullets; i++) {
-    var bullet = this.game.add.sprite(0, 0, 'bullet');
-    this.bulletPool.add(bullet);
+    Battleship.GameState.bulletPool = Battleship.game.add.group();
+    for (var i = 0; i < Battleship.GameState.NUMBER_OF_BULLETS; i++) {
+      var bullet = Battleship.game.add.sprite(0, 0, 'bullet');
+      Battleship.GameState.bulletPool.add(bullet);
 
-    bullet.anchor.setTo(0.5, 0.5);
+      bullet.anchor.setTo(0.5, 0.5);
 
-    this.game.physics.enable(bullet, Phaser.Physics.ARCADE);
-    bullet.kill();
-  }
+      Battleship.game.physics.enable(bullet, Phaser.Physics.ARCADE);
+      bullet.kill();
+    }
 
+    // simulates mouse pointer in center of stage
+    Battleship.game.input.activePointer.x = Battleship.game.width / 2;
+    Battleship.game.input.activePointer.y = Battleship.game.height / 2;
+
+    Battleship.GameState.explosionGroup = Battleship.game.add.group();
+    // hit groups responsible for drawing the hit cell over ship sprites
+    Battleship.GameState.hitGroup = Battleship.game.add.group();
+    Battleship.GameState.hitEnemyGroup = Battleship.game.add.group();
+
+    Battleship.GameState.music = Battleship.GameState.add.audio('music');
+    Battleship.GameState.music.loopFull(0.4);
+    Battleship.game.isReady = true;
+    Battleship.GameState.bar.visible = false;
+    Battleship.GameState.msg.visible = false;
+  }, 2500);
+
+  // Keeps track of score
+  this.scoreKeep(this.scoreText);
   // creates a banner message
   this.bannerMessage();
+  this.bar.visible = true;
+  this.msg.visible = true;
 
-  // simulates mouse pointer in center of stage
-  this.game.input.activePointer.x = this.game.width / 2;
-  this.game.input.activePointer.y = this.game.height / 2;
-
-  this.explosionGroup = this.game.add.group();
-  this.hitGroup = this.game.add.group();
-  this.hitEnemyGroup = this.game.add.group();
-
-  this.music = this.add.audio('music');
-  this.music.loopFull(0.4);
-};
+};  // ------ End of create function ---------------//
 
 Battleship.GameState.bannerMessage = function() {
   // banner message for changing turns
@@ -314,21 +336,58 @@ Battleship.GameState.bannerMessage = function() {
   this.bar.beginFill(0x000000, 0.2);
   this.bar.drawRect(0, this.game.world.centerY - 50, 800, 100);
 
+    // sets font style, color, and size
   var style = { font: "bold 32px Arial", fill: "#FFF"};
 
   // Text for banner
-  if (this.game.data.turn == "player") {
+  if (this.game.data.turn === "player") {
     this.msg = this.add.text(this.game.world.centerX, this.game.world.centerY, "Player's Turn!", style);
     this.msg.anchor.setTo(0.5);
     this.msg.setShadow(3, 3, 'rgba(0, 0, 0, 0.5', 2);
-  } else if (this.game.data.turn == "enemy") {
+  } else if (this.game.data.turn === "enemy") {
     this.msg = this.add.text(this.game.world.centerX, this.game.world.centerY, "Enemy's Turn!", style);
     this.msg.anchor.setTo(0.5);
     this.msg.setShadow(3, 3, 'rgba(0, 0, 0, 0.5', 2);
   }
 
+  // make invisible to show board
   this.bar.visible = false;
   this.msg.visible = false;
+};
+
+// draws initial score text
+Battleship.GameState.scoreKeep = function() {
+  var style = { font: "bold 32px Arial", fill: "#FFF"};
+
+    // score text that updates every time player scores a successful hit
+  this.score = this.add.text(this.game.world.centerX - 10, this.game.world.centerY - 385, this.scoreText + this.game.data.playerScore, style);
+  this.score.anchor.setTo(0.5);
+  this.score.setShadow(3, 3, 'rgba(0, 0, 0, 0.5', 2);
+};
+
+// draws the text for the ammo object
+Battleship.GameState.drawAmmoText = function() {
+  var style = { font: "bold 32px Arial", fill: "#FFF"};
+  this.ammoText = this.game.add.text(this.game.world.centerX - 300, this.game.world.centerY + 315, "Ammo: ", style);
+  this.ammoText.setShadow(3, 3, 'rgba(0, 0, 0, 0.5', 2);
+};
+
+// draws sprites for ammo object
+Battleship.GameState.drawAmmoSprites = function() {
+  // player ammo
+    for (var a = 0; a < 6; a++) {
+      var ammoSprite = this.ammo.create(this.game.world.centerX - 170 + (30 * a), this.game.world.centerY + 335, 'bullet');
+      ammoSprite.anchor.setTo(0.5);
+      ammoSprite.angle = 270;
+      ammoSprite.alpha = 0.85;
+    }
+  // enemy ammo
+    for (var e = 0; e < 6; e++) {
+      var enemyAmmoSprite = this.enemyAmmo.create(this.game.world.centerX - 170 + (30 * e), this.game.world.centerY + 335, 'bullet');
+      enemyAmmoSprite.anchor.setTo(0.5);
+      enemyAmmoSprite.angle = 270;
+      enemyAmmoSprite.alpha = 0.85;
+    }
 };
 
 // placing the enemy ships
@@ -403,17 +462,13 @@ Battleship.GameState.shipPlacement = function (target, cell, ship, isVisible, in
 };
 
 Battleship.GameState.switchTurn = function(player) {
-  console.log("Player Score: " + this.game.data.playerScore);
-  console.log("writing message...");
   // switches turn from current user [player -> enemy, enemy -> player]
   if (player === "player") {
-    //this.music.stop();
     this.reservedBullets = 6;
     this.game.data.turn = "player";
     this.bannerMessage();
     this.viewMessage();
   } else if (player === "enemy") {
-    //this.music.stop();
     this.reservedBullets = 6;
     this.game.data.turn = "enemy";
     this.bannerMessage();
@@ -422,7 +477,6 @@ Battleship.GameState.switchTurn = function(player) {
 };
 
 Battleship.GameState.viewMessage = function() {
-  console.log("changing boards");
   if (this.game.data.turn == "player") {
     // change visibility of message before switching boards
     this.bar.visible = true;
@@ -432,8 +486,7 @@ Battleship.GameState.viewMessage = function() {
     setTimeout(function(){
       Battleship.GameState.bar.visible = false;
       Battleship.GameState.msg.visible = false;
-    }, 3000);
-    
+    }, 2000);
   } else if (this.game.data.turn == "enemy") {
     // change visibility of message before switching boards
     this.bar.visible = true;
@@ -444,26 +497,33 @@ Battleship.GameState.viewMessage = function() {
       Battleship.GameState.bar.visible = false;
       Battleship.GameState.msg.visible = false;
       Battleship.game.data.isShooting = false;
-    }, 3000);
-    
+    }, 2000);
   }
 };
 
 function changeBoardsToEnemys(isEnemys) {
-  Battleship.GameState.cells.visible = !isEnemys
-  Battleship.GameState.playerCells.visible = isEnemys
-  Battleship.GameState.hitGroup.visible = !isEnemys
-  Battleship.GameState.hitEnemyGroup.visible = isEnemys
-  // if players turn, show all sunken enemy ships and hide the rest along with the enemys board ships, else hide all enemy ships and show all players ships
+  // player variables are hidden when enemy plays
+  Battleship.GameState.score.visible = !isEnemys;
+  Battleship.GameState.cells.visible = !isEnemys;
+  Battleship.GameState.hitGroup.visible = !isEnemys;
+  // Delay ammo visibility to switch to appropriate board
+  setTimeout(function(){ Battleship.GameState.ammo.setAll('visible', !isEnemys); }, 500);
+
+  // enemy's board and hit markers are shown
+  Battleship.GameState.playerCells.visible = isEnemys;
+  // Delay ammo visibility to switch to appropriate board
+  setTimeout(function(){ Battleship.GameState.enemyAmmo.setAll('visible', isEnemys); }, 500);
+  Battleship.GameState.hitEnemyGroup.visible = isEnemys;
+  // if players turn, show all sunken enemy ships and hide the rest along with the enemys' board ships, else hide all enemy ships and show all players ships
   if (Battleship.GameState.cells.visible) {
     for (var i = 2; i < 7; i++) {
       Battleship.GameState.playerShips['ship' + i].location.visible = false;
       Battleship.GameState.enemyShips['ship' + i].location.visible = Battleship.GameState.enemyShips['ship' + i].sunken;
     }
   } else {
-    for (var i = 2; i < 7; i++) {
-      Battleship.GameState.playerShips['ship' + i].location.visible = true;
-      Battleship.GameState.enemyShips['ship' + i].location.visible = false;
+    for (var j = 2; j < 7; j++) {
+      Battleship.GameState.playerShips['ship' + j].location.visible = true;
+      Battleship.GameState.enemyShips['ship' + j].location.visible = false;
     }
   }
 }

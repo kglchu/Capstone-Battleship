@@ -72,7 +72,6 @@ Battleship.GameState.sunkEnemyBattleship = function(cell) {
 
         case 4:
             this.cells.ship4 += cell.enemyContact;
-            console.log("Ship 4 current tally: " + this.cells.ship4);
             if (this.cells.ship4 === 16) {
                 this.sunkShip = this.add.audio('sunkenShip');
                 this.sunkShip.play();
@@ -127,9 +126,9 @@ Battleship.GameState.simulateShooting = function(cellGroup) {
     this.game.data.isShooting = true;
     // setTimeouts delay the shot by enemy AI and makes sure to recalculate
     // a shot if it chooses the same cell
-    if (this.reservedBullets > 0) {
+    if (this.reservedBullets > 0 && !this.game.data.loser) {
         var cell = this.playerCells.getChildAt(this.game.rnd.integerInRange(0, 99));
-        console.log(cell.name);
+        // if the selected cell has not been hit, then fire at cell
         if (!cell.isHit) {
           // this.gun.rotation = Math.atan2(cell.y-this.gun.y, cell.x-this.gun.x);
             this.gun.rotation = Math.atan2( cell.y - this.gun.y, cell.x - this.gun.x );
@@ -141,9 +140,8 @@ Battleship.GameState.simulateShooting = function(cellGroup) {
     } else {
         setTimeout(function() {
             //Battleship.game.data.isShooting = true;
-            console.log("switching turn from enemy");
             Battleship.GameState.switchTurn('player');
-        }, 500);
+        }, 100);
     }
         
 };
@@ -152,6 +150,13 @@ function callShootAgain (cells) {
     Battleship.GameState.simulateShooting(cells);
 }
 
+Battleship.GameState.updateEnemyAmmo = function() {
+  var ammo = this.enemyAmmo.getChildAt(this.reservedBullets - 1);
+
+  ammo.visible = false;
+};
+
+// collision method to keep track of the damage done to player
 Battleship.GameState.checkEnemyCollision = function() {
     this.game.physics.arcade.collide(this.bulletPool, this.playerCells, function(bullet, cell) {
     // trigger explosion
@@ -166,11 +171,11 @@ Battleship.GameState.checkEnemyCollision = function() {
         // check for sunken ship
         this.sunkPlayerBattleship(cell);
         this.game.data.playerScore += cell.enemyContact;
-        setTimeout(function () {callShootAgain(this.playerCells)}, 1000);
+        setTimeout(function () { callShootAgain(this.playerCells); }, 900);
       } else {
           // there is nothing in the cell
           this.miss(cell);
-          setTimeout(function () {callShootAgain(this.playerCells)}, 1800);
+          setTimeout(function () { callShootAgain(this.playerCells); }, 1200);
       }
 
       // destroy gun and ships, reset board
@@ -179,13 +184,14 @@ Battleship.GameState.checkEnemyCollision = function() {
           item.frame = 0;
         }, this);
 
+        // destroy all objects before restarting game
         this.music.stop();
-        this.gun.destroy();
-        this.ship2.location.destroy();
-        this.ship3.location.destroy();
-        this.ship4.location.destroy();
-        this.ship5.location.destroy();
-        this.ship6.location.destroy();
+        // this.gun.destroy();
+        // this.ship2.location.destroy();
+        // this.ship3.location.destroy();
+        // this.ship4.location.destroy();
+        // this.ship5.location.destroy();
+        // this.ship6.location.destroy();
         this.game.data.loser = "player";
         this.game.state.start("GameOverState");
       }

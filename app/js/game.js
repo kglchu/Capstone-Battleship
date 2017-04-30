@@ -1,4 +1,5 @@
-// TODO Keep 'memory' of board for both player and enemy
+// TODO Add score text on top of boards and ammo sprites 
+// beneath board to keep track of bullets left
 
 Battleship.GameState.spawnEnemyBoard = function(board) {
   this.BOARD_COLS = 10; //Math.floor(this.game.world.width / this.CELL_SIZE_SPACED);
@@ -120,9 +121,11 @@ Battleship.GameState.shootBullet = function() {
   // get dead bullet from the pool
   var bullet = this.bulletPool.getFirstDead();
 
-  // if there aren't any bullets in pool, then don't shoot
+  // If there aren't any bullets available then don't shoot
   if (bullet === null || bullet === undefined) return;
 
+  // Revive the bullet
+  // This makes the bullet "alive"
   bullet.revive();
 
   // Bullets will kill themselves when they leave world bounds
@@ -139,29 +142,44 @@ Battleship.GameState.shootBullet = function() {
   this.cannonShot = this.add.audio('shoot');
   this.cannonShot.play();
 
+  if (this.game.data.turn === "player") {
+    this.updateAmmo();
+  } else if (this.game.data.turn === "enemy"){
+    this.updateEnemyAmmo();
+  }
+
   this.reservedBullets -= 1;
+};
+
+Battleship.GameState.updateAmmo = function() {
+  var ammo = this.ammo.getChildAt(this.reservedBullets - 1);
+
+  ammo.visible = false;
 };
 
 // Update method is called every frame
 Battleship.GameState.update = function() {
   //Aim the gun at mouse pointer
   
-  
+  if (!this.game.isReady) return;
+
   if (this.game.data.turn == "player") {
+    // sets gun rotation relative to mouse pointer
     this.gun.rotation = this.game.physics.arcade.angleToPointer(this.gun);
   } else if (this.game.data.turn == "enemy"){
-    console.log("enemy turn");
     if (!this.game.data.isShooting) {
-      console.log("enemy shooting");
+      // if the enemy is playing and is currently NOT shooting, simulate shooting
       this.simulateShooting(this.playerCells);
     }
   }
 
-  // collision method
+  // collision method determined by who is playing
   if (this.game.data.turn == "player") {
+    // triggers change of text of GameOverState to match the player's victory
     this.GameOverPlayer();
     this.checkPlayerCollision();
   } else if (this.game.data.turn == "enemy") {
+    // otherwise the player loses
     this.GameOverEnemy();
     this.checkEnemyCollision();
   }
@@ -196,7 +214,7 @@ Battleship.GameState.getHitLocation = function (target,cell, x, y) {
 //get the first dead explosion from the explosionGroup
     var hit = target === "player" ? this.hitGroup.getFirstDead() : this.hitEnemyGroup.getFirstDead();
 
-    //if ther aren't any available, create a new one
+    //if there aren't any available, create a new one
     if( hit === null)
     {
         hit = this.game.add.sprite(0, 0, 'cell', 1);
@@ -207,9 +225,7 @@ Battleship.GameState.getHitLocation = function (target,cell, x, y) {
           this.hitGroup.add(hit);
         } else {
           this.hitEnemyGroup.add(hit);
-        }
-        
-        
+        }   
     }
 
     hit.revive();
@@ -220,7 +236,6 @@ Battleship.GameState.getHitLocation = function (target,cell, x, y) {
 
     // Return the explosion itself in case we want to do anything else with it
     return hit;
-
 };
 
 Battleship.GameState.selectCell = function(cell) {
@@ -244,16 +259,19 @@ Battleship.GameState.selectCell = function(cell) {
     this.game.physics.enable(cell, Phaser.Physics.ARCADE);
     cell.body.immovable = true;
     cell.body.allowGravity = false;
+    // checks to see if cell is populated
     if (cell.hasEnemy) {
+      // sets enemyContact to marker value, which is used to add to scoreText
       cell.enemyContact = cell.marker;
       cell.marker = 0;
     }
   }  
 };
 
+// collision method to keep track of the damage done to enemy
 Battleship.GameState.checkPlayerCollision = function() {
   this.game.physics.arcade.collide(this.bulletPool, this.cells, function(bullet, cell) {
-  // trigger explosion
+  // kill bullet before triggering explosion or changing frame of the cell
   bullet.kill();
     // disable all other cells to collide with selected cell
     if(cell.body.enable) {
@@ -267,13 +285,15 @@ Battleship.GameState.checkPlayerCollision = function() {
       // check for sunken ship
       this.sunkEnemyBattleship(cell);
       this.game.data.playerScore += cell.enemyContact;
+      // updates the score text on the top of board
+      this.score.text = this.scoreText + this.game.data.playerScore;
     } else {
         // there is nothing in the cell
         this.miss(cell);
     }
 
+    // if there are no bullets left, then switch to enemy board
     if (this.reservedBullets === 0) {
-      console.log("switching turn from player");
       setTimeout(function() {
         Battleship.GameState.switchTurn('enemy');
       }, 500);
@@ -285,15 +305,15 @@ Battleship.GameState.checkPlayerCollision = function() {
         item.frame = 0;
       }, this);
 
-      this.music.destroy();
-      this.gun.destroy();
-      this.enemyShips.ship2.location.destroy();
-      this.enemyShips.ship3.location.destroy();
-      this.enemyShips.ship4.location.destroy();
-      this.enemyShips.ship5.location.destroy();
-      this.enemyShips.ship6.location.destroy();
+      // destroy all objects in order to clean up cache and start a new board
+      this.music.stop();
+      // this.gun.destroy();
+      // this.enemyShips.ship2.location.destroy();
+      // this.enemyShips.ship3.location.destroy();
+      // this.enemyShips.ship4.location.destroy();
+      // this.enemyShips.ship5.location.destroy();
+      // this.enemyShips.ship6.location.destroy();
       this.game.data.playerScore += Math.floor(Math.random() * (36 - 4)) + 4;
-      console.log("Player Score: " + this.game.data.playerScore);
       this.game.state.start("GameOverState");
     }
   }, null, this);
