@@ -57,6 +57,7 @@ Battleship.GameState.sunkEnemyBattleship = function(cell) {
                 this.sunkShip.play();
                 this.enemyShips.ship2.location.visible = true;
                 this.enemyShips.ship2.sunken = true;
+                this.game.data.playerScore += 4;
             }
         break;
 
@@ -67,6 +68,7 @@ Battleship.GameState.sunkEnemyBattleship = function(cell) {
                 this.sunkShip.play();
                 this.enemyShips.ship3.location.visible = true;
                 this.enemyShips.ship3.sunken = true;
+                this.game.data.playerScore += 9;
             }
         break;
 
@@ -77,6 +79,7 @@ Battleship.GameState.sunkEnemyBattleship = function(cell) {
                 this.sunkShip.play();
                 this.enemyShips.ship4.location.visible = true;
                 this.enemyShips.ship4.sunken = true;
+                this.game.data.playerScore += 16;
             }
         break;
 
@@ -87,6 +90,7 @@ Battleship.GameState.sunkEnemyBattleship = function(cell) {
                 this.sunkShip.play();
                 this.enemyShips.ship5.location.visible = true;
                 this.enemyShips.ship5.sunken = true;
+                this.game.data.playerScore += 25;
             }
         break;
 
@@ -97,6 +101,7 @@ Battleship.GameState.sunkEnemyBattleship = function(cell) {
                 this.sunkShip.play();
                 this.enemyShips.ship6.location.visible = true;
                 this.enemyShips.ship6.sunken = true;
+                this.game.data.playerScore += 36;
             }
         break;
     }

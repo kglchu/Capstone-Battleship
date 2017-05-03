@@ -235,7 +235,7 @@ Battleship.GameState.init = function() {
 
 Battleship.GameState.preload = function() {
   // images
-  this.load.image('bullet', 'img/assets/gfx/rocket.png');
+  this.load.image('bullet', 'img/assets/gfx/missile.png');
   this.load.image('player', 'img/assets/gfx/bullet.png');
   this.load.image('enemy', 'img/assets/gfx/player.png');
   this.load.image('ground', 'img/assets/gfx/ground.png');
@@ -376,14 +376,14 @@ Battleship.GameState.drawAmmoText = function() {
 Battleship.GameState.drawAmmoSprites = function() {
   // player ammo
     for (var a = 0; a < 6; a++) {
-      var ammoSprite = this.ammo.create(this.game.world.centerX - 170 + (30 * a), this.game.world.centerY + 335, 'bullet');
+      var ammoSprite = this.ammo.create(this.game.world.centerX - 160 + (45 * a), this.game.world.centerY + 340, 'bullet');
       ammoSprite.anchor.setTo(0.5);
       ammoSprite.angle = 270;
       ammoSprite.alpha = 0.85;
     }
   // enemy ammo
     for (var e = 0; e < 6; e++) {
-      var enemyAmmoSprite = this.enemyAmmo.create(this.game.world.centerX - 170 + (30 * e), this.game.world.centerY + 335, 'bullet');
+      var enemyAmmoSprite = this.enemyAmmo.create(this.game.world.centerX - 160 + (45 * e), this.game.world.centerY + 340, 'bullet');
       enemyAmmoSprite.anchor.setTo(0.5);
       enemyAmmoSprite.angle = 270;
       enemyAmmoSprite.alpha = 0.85;
