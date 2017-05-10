@@ -51,6 +51,7 @@ Battleship.GameState.sunkPlayerBattleship = function(cell) {
             if (this.playerCells.ship2 === 4) {
                 this.sunkShip = this.add.audio('sunkenShip');
                 this.sunkShip.play();
+                this.shakeCamera();
                 //this.playerShips.ship2.location.visible = true;
                 this.playerShips.ship2.sunken = true;
                 return true;
@@ -62,6 +63,7 @@ Battleship.GameState.sunkPlayerBattleship = function(cell) {
             if (this.playerCells.ship3 === 9) {
                 this.sunkShip = this.add.audio('sunkenShip');
                 this.sunkShip.play();
+                this.shakeCamera();
                 //this.playerShips.ship3.location.visible = true;
                 this.playerShips.ship2.sunken = true;
                 return true;
@@ -73,6 +75,7 @@ Battleship.GameState.sunkPlayerBattleship = function(cell) {
             if (this.playerCells.ship4 === 16) {
                 this.sunkShip = this.add.audio('sunkenShip');
                 this.sunkShip.play();
+                this.shakeCamera();
                 //this.playerShips.ship4.location.visible = true;
                 this.playerShips.ship2.sunken = true;
                 return true;
@@ -84,6 +87,7 @@ Battleship.GameState.sunkPlayerBattleship = function(cell) {
             if (this.playerCells.ship5 === 25) {
                 this.sunkShip = this.add.audio('sunkenShip');
                 this.sunkShip.play();
+                this.shakeCamera();
                 //this.playerShips.ship5.location.visible = true;
                 this.playerShips.ship2.sunken = true;
                 return true;
@@ -95,6 +99,7 @@ Battleship.GameState.sunkPlayerBattleship = function(cell) {
             if (this.playerCells.ship6 === 36) {
                 this.sunkShip = this.add.audio('sunkenShip');
                 this.sunkShip.play();
+                this.shakeCamera();
                 //this.playerShips.ship6.location.visible = true;
                 this.playerShips.ship2.sunken = true;
                 return true;
@@ -149,6 +154,10 @@ Battleship.GameState.shootBullet = function() {
   }
 
   this.reservedBullets -= 1;
+};
+
+Battleship.GameState.shootCannon = function() {
+  this.gun.play('kaboom');
 };
 
 Battleship.GameState.updateAmmo = function() {
@@ -243,6 +252,7 @@ Battleship.GameState.selectCell = function(cell) {
   if(cell.frame === 0 && this.game.data.turn == "enemy") {
       // shoot bullet at selected cell from the simulated shooting method
       this.shootBullet();
+      this.shootCannon();
       // selected cell physics
       this.game.physics.enable(cell, Phaser.Physics.ARCADE);
       cell.body.immovable = true;
@@ -255,6 +265,7 @@ Battleship.GameState.selectCell = function(cell) {
     } else if (cell.input.pointerOver && cell.frame === 0 && this.game.data.turn == "player" && this.reservedBullets > 0) {
     // shoot bullet if touching or in bounds of cell
     this.shootBullet();
+    this.shootCannon();
     // selected cell physics
     this.game.physics.enable(cell, Phaser.Physics.ARCADE);
     cell.body.immovable = true;

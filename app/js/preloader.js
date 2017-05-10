@@ -236,7 +236,7 @@ Battleship.GameState.init = function() {
 Battleship.GameState.preload = function() {
   // images
   this.load.image('bullet', 'img/assets/gfx/missile.png');
-  this.load.image('player', 'img/assets/gfx/bullet.png');
+  this.load.image('cannonBase', 'img/assets/gfx/base.png');
   this.load.image('enemy', 'img/assets/gfx/player.png');
   this.load.image('ground', 'img/assets/gfx/ground.png');
   this.load.image('ship2', 'img/assets/gfx/Ship2.png');
@@ -248,6 +248,7 @@ Battleship.GameState.preload = function() {
   // sprite sheets
   this.load.spritesheet('explosion', 'img/assets/gfx/explosion.png', 128, 128);
   this.load.spritesheet('cell', 'img/assets/gfx/cells.png', 64, 64);
+  this.load.spritesheet('cannon', 'img/assets/gfx/cannon_sprites.png', 96, 30);
 
   // music
   this.load.audio('music', ['img/assets/audio/Battleship.mp3', 'img/assets/audio/Battleship.ogg']);
@@ -280,7 +281,7 @@ Battleship.GameState.create = function() {
   this.ammo = this.game.add.group();
   this.enemyAmmo = this.game.add.group();
   // draw text associated with ammo
-  this.drawAmmoText();
+  //this.drawAmmoText();
   // draw bullet/missiles representing total reservedBullets
   this.drawAmmoSprites();
   this.enemyAmmo.setAll('visible', false);
@@ -290,9 +291,6 @@ Battleship.GameState.create = function() {
     Battleship.game.data.playerBoard = Battleship.GameState.positionData();
     Battleship.GameState.spawnPlayerBoard(Battleship.game.data.playerBoard);
     Battleship.GameState.playerCells.visible = false;
-
-    Battleship.GameState.gun = Battleship.game.add.sprite(Battleship.game.width / 2, Battleship.game.height - 10, 'player');
-    Battleship.GameState.gun.anchor.setTo(0.5, 0.5);
 
     Battleship.GameState.bulletPool = Battleship.game.add.group();
     for (var i = 0; i < Battleship.GameState.NUMBER_OF_BULLETS; i++) {
@@ -304,6 +302,16 @@ Battleship.GameState.create = function() {
       Battleship.game.physics.enable(bullet, Phaser.Physics.ARCADE);
       bullet.kill();
     }
+
+     // cannon
+    Battleship.GameState.gun = Battleship.GameState.add.sprite(Battleship.game.width / 2, Battleship.game.height - 12, 'cannon');
+    Battleship.GameState.gun.anchor.setTo(0.25,0.5);
+    Battleship.GameState.gun.animations.add('kaboom', [1, 1, 1, 2, 2, 3, 0], 18, false);
+    // cannon base to allow cannon to hide unwanted visuals
+    Battleship.GameState.cannonBase = Battleship.GameState.add.sprite(Battleship.game.width / 2, Battleship.game.height - 5, 'cannonBase');
+    Battleship.GameState.cannonBase.anchor.setTo(0.5);
+    Battleship.GameState.cannonBase.angle = 180;
+    Battleship.GameState.cannonBase.width = 128;
 
     // simulates mouse pointer in center of stage
     Battleship.game.input.activePointer.x = Battleship.game.width / 2;
@@ -319,7 +327,7 @@ Battleship.GameState.create = function() {
     Battleship.game.isReady = true;
     Battleship.GameState.bar.visible = false;
     Battleship.GameState.msg.visible = false;
-  }, 2500);
+  }, 1000);
 
   // Keeps track of score
   this.scoreKeep(this.scoreText);
@@ -328,7 +336,31 @@ Battleship.GameState.create = function() {
   this.bar.visible = true;
   this.msg.visible = true;
 
+  // Create a white rectangle that we'll use to represent the flash
+  this.flash = this.game.add.graphics(0, 0);
+  this.flash.beginFill(0xffffff, 1);
+  this.flash.drawRect(0, 0, this.game.width, this.game.height);
+  this.flash.endFill();
+  this.flash.alpha = 0;
+
+  // Make the world a bit bigger than the stage so we can shake the camera
+  this.game.world.setBounds(-10, -10, this.game.width + 20, this.game.height + 20);
+
 };  // ------ End of create function ---------------//
+
+Battleship.GameState.shakeCamera = function() {
+  // make flash visible on screen
+  this.flash.alpha = 1;
+  this.add.tween(this.flash)
+      .to({ alpha: 0 }, 100, Phaser.Easing.Cubic.In)
+      .start();
+
+  // camera movement
+  this.camera.y = 0;
+  this.add.tween(this.camera)
+      .to({ y: -10 }, 40, Phaser.Easing.Sinusoidal.InOut, false, 0, 5, true)
+      .start();
+};
 
 Battleship.GameState.bannerMessage = function() {
   // banner message for changing turns
@@ -376,14 +408,14 @@ Battleship.GameState.drawAmmoText = function() {
 Battleship.GameState.drawAmmoSprites = function() {
   // player ammo
     for (var a = 0; a < 6; a++) {
-      var ammoSprite = this.ammo.create(this.game.world.centerX - 160 + (45 * a), this.game.world.centerY + 340, 'bullet');
+      var ammoSprite = this.ammo.create(this.game.world.centerX - 315 + (45 * a), this.game.height - 37, 'bullet');
       ammoSprite.anchor.setTo(0.5);
       ammoSprite.angle = 270;
       ammoSprite.alpha = 0.85;
     }
   // enemy ammo
     for (var e = 0; e < 6; e++) {
-      var enemyAmmoSprite = this.enemyAmmo.create(this.game.world.centerX - 160 + (45 * e), this.game.world.centerY + 340, 'bullet');
+      var enemyAmmoSprite = this.enemyAmmo.create(this.game.world.centerX - 315 + (45 * e), this.game.height - 37, 'bullet');
       enemyAmmoSprite.anchor.setTo(0.5);
       enemyAmmoSprite.angle = 270;
       enemyAmmoSprite.alpha = 0.85;

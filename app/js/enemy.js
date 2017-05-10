@@ -55,6 +55,8 @@ Battleship.GameState.sunkEnemyBattleship = function(cell) {
             if (this.cells.ship2 === 4) {
                 this.sunkShip = this.add.audio('sunkenShip');
                 this.sunkShip.play();
+                this.shakeCamera();
+                // make ship visible
                 this.enemyShips.ship2.location.visible = true;
                 this.enemyShips.ship2.sunken = true;
                 this.game.data.playerScore += 4;
@@ -66,6 +68,8 @@ Battleship.GameState.sunkEnemyBattleship = function(cell) {
             if (this.cells.ship3 === 9) {
                 this.sunkShip = this.add.audio('sunkenShip');
                 this.sunkShip.play();
+                this.shakeCamera();
+                // make ship visible
                 this.enemyShips.ship3.location.visible = true;
                 this.enemyShips.ship3.sunken = true;
                 this.game.data.playerScore += 9;
@@ -77,6 +81,8 @@ Battleship.GameState.sunkEnemyBattleship = function(cell) {
             if (this.cells.ship4 === 16) {
                 this.sunkShip = this.add.audio('sunkenShip');
                 this.sunkShip.play();
+                this.shakeCamera();
+                // make ship visible
                 this.enemyShips.ship4.location.visible = true;
                 this.enemyShips.ship4.sunken = true;
                 this.game.data.playerScore += 16;
@@ -88,6 +94,8 @@ Battleship.GameState.sunkEnemyBattleship = function(cell) {
             if (this.cells.ship5 === 25) {
                 this.sunkShip = this.add.audio('sunkenShip');
                 this.sunkShip.play();
+                this.shakeCamera();
+                // make ship visible
                 this.enemyShips.ship5.location.visible = true;
                 this.enemyShips.ship5.sunken = true;
                 this.game.data.playerScore += 25;
@@ -99,6 +107,8 @@ Battleship.GameState.sunkEnemyBattleship = function(cell) {
             if (this.cells.ship6 === 36) {
                 this.sunkShip = this.add.audio('sunkenShip');
                 this.sunkShip.play();
+                this.shakeCamera();
+                // make ship visible
                 this.enemyShips.ship6.location.visible = true;
                 this.enemyShips.ship6.sunken = true;
                 this.game.data.playerScore += 36;
