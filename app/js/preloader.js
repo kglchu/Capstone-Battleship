@@ -354,8 +354,6 @@ Battleship.GameState.create = function() {
   this.scoreKeep(this.scoreText);
   // creates a banner message
   this.bannerMessage();
-  this.bar.visible = true;
-  this.msg.visible = true;
 
   // Create a white rectangle that we'll use to represent the flash
   this.flash = this.game.add.graphics(0, 0);
