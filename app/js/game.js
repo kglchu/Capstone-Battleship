@@ -38,7 +38,6 @@ Battleship.GameState.spawnEnemyBoard = function(board) {
       cell.events.onInputDown.add(this.selectCell, this);
     }
   }
-  this.game.data.currentEnemyBoard = this.cells;
 };
 
 // checks for any player ship that has sunk
@@ -226,10 +225,11 @@ Battleship.GameState.getHitLocation = function (target,cell, x, y) {
     //if there aren't any available, create a new one
     if( hit === null)
     {
-        hit = this.game.add.sprite(0, 0, 'cell', 1);
+        hit = this.game.add.sprite(0, 0, 'fire', 0);
         hit.anchor.setTo(0.5, 0.5);
+        hit.animations.add('flames', [ 0, 1, 2, 3, 4 ], 14, true);
 
-        //add explosion sprite to the group
+        // add cell sprite to the group
         if(target === "player") {
           this.hitGroup.add(hit);
         } else {
@@ -240,11 +240,49 @@ Battleship.GameState.getHitLocation = function (target,cell, x, y) {
     hit.revive();
 
     //move the explosion to the given coordinates
-    hit.x = x;
-    hit.y = y;
+    hit.x = x + 3;
+    hit.y = y - 10;
+
+    hit.width = 33;
+    hit.height = 60;
+    hit.angle = 15;
+
+    hit.animations.play('flames');
 
     // Return the explosion itself in case we want to do anything else with it
     return hit;
+};
+
+Battleship.GameState.shipSmoke = function (target, cell, x, y) {
+//get the first dead explosion from the explosionGroup
+    var smoke = target === "player" ? this.enemySmokeGroup.getFirstDead() : this.playerSmokeGroup.getFirstDead();
+
+    if( smoke === null ) {
+      smoke = this.game.add.sprite(0, 0, 'smoke', 0);
+      smoke.anchor.setTo(0.5);
+      smoke.animations.add('smoking', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], 30, true);
+
+      if (target === "player") {
+        this.enemySmokeGroup.add(smoke);
+      } else {
+        this.playerSmokeGroup.add(smoke);
+      }
+    }
+
+    smoke.revive();
+
+    smoke.x = x + 5;
+    smoke.y = y - 26;
+
+    smoke.angle = this.game.rnd.integerInRange(15, 30);
+    smoke.alpha = 0.85;
+    smoke.width = 44;
+    smoke.height = 80;
+
+    smoke.animations.play('smoking');
+
+    return smoke;
+
 };
 
 Battleship.GameState.selectCell = function(cell) {
@@ -292,6 +330,7 @@ Battleship.GameState.checkPlayerCollision = function() {
     if (cell.hasEnemy) {
       this.getExplosion(cell, cell.posX, cell.posY);
       this.getHitLocation("player",cell, cell.x, cell.y);
+      this.shipSmoke("player", cell, cell.x, cell.y);
       this.enemyHit(cell);
       // check for sunken ship
       this.sunkEnemyBattleship(cell);
@@ -318,12 +357,6 @@ Battleship.GameState.checkPlayerCollision = function() {
 
       // destroy all objects in order to clean up cache and start a new board
       this.music.stop();
-      // this.gun.destroy();
-      // this.enemyShips.ship2.location.destroy();
-      // this.enemyShips.ship3.location.destroy();
-      // this.enemyShips.ship4.location.destroy();
-      // this.enemyShips.ship5.location.destroy();
-      // this.enemyShips.ship6.location.destroy();
       this.game.data.playerScore += Math.floor(Math.random() * (36 - 4)) + 4;
       this.game.state.start("GameOverState");
     }

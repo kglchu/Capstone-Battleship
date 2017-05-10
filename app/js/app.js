@@ -6,6 +6,8 @@ Battleship.game.data = {};
 // 'global' data objects changing the text on home and gameover screens
 Battleship.game.data.loser = "";
 Battleship.game.data.turn = "player";
+Battleship.game.data.playerBoardIndex = null;
+Battleship.game.data.enemyBoardIndex = null;
 
 // score for player
 Battleship.game.data.playerScore = 0;

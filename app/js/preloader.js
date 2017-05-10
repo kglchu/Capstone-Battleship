@@ -249,6 +249,8 @@ Battleship.GameState.preload = function() {
   this.load.spritesheet('explosion', 'img/assets/gfx/explosion.png', 128, 128);
   this.load.spritesheet('cell', 'img/assets/gfx/cells.png', 64, 64);
   this.load.spritesheet('cannon', 'img/assets/gfx/cannon_sprites.png', 96, 30);
+  this.load.spritesheet('smoke', 'img/assets/gfx/smoke_spritesheet.png', 21, 52);
+  this.load.spritesheet('fire', 'img/assets/gfx/fire_spritesheet.png', 22, 40);
 
   // music
   this.load.audio('music', ['img/assets/audio/Battleship.mp3', 'img/assets/audio/Battleship.ogg']);
@@ -259,13 +261,32 @@ Battleship.GameState.preload = function() {
   this.load.audio('miss', 'img/assets/audio/Liquid Water Water Splash Hands Big Splash 02.mp3');
 };
 
-Battleship.GameState.positionData = function() {
+Battleship.GameState.positionData = function(user) {
+  
   var board = {};
   var len = this.matrix.length;
-  var index = this.game.rnd.integerInRange(0, (len-1));
+  var index = null;
+
+  //index = this.game.rnd.integerInRange(0, (len-1));
+  index = Math.floor(Math.random() * (len - 1));
+
+  if(user === 'player') {
+    if (index !== this.game.data.enemyBoardIndex) {
+      this.game.data.playerBoardIndex = index;
+    } else {
+      this.positionData('player');
+    }
+  } else {
+    if (index !== this.game.data.playerBoardIndex) {
+      this.game.data.enemyBoardIndex = index;
+    } else {
+      this.positionData('enemy');
+    }
+  }
+
   board.matrix = this.matrix[index];
   board.index = index;
-
+  index = null;
   return board;
   
 };
@@ -274,21 +295,20 @@ Battleship.GameState.create = function() {
   this.game.stage.backgroundColor = '#4488cc';
 
   // draws enemy board for player
-  this.game.data.enemyBoard = this.positionData();
+  this.game.data.enemyBoard = this.positionData('player');
+  console.log(this.game.data.enemyBoard);
   this.spawnEnemyBoard(this.game.data.enemyBoard);
 
   // group that draws the missiles representing the reservedBullets variable
   this.ammo = this.game.add.group();
   this.enemyAmmo = this.game.add.group();
-  // draw text associated with ammo
-  //this.drawAmmoText();
   // draw bullet/missiles representing total reservedBullets
   this.drawAmmoSprites();
   this.enemyAmmo.setAll('visible', false);
 
   // draws the player board for enemy
   setTimeout(function(){
-    Battleship.game.data.playerBoard = Battleship.GameState.positionData();
+    Battleship.game.data.playerBoard = Battleship.GameState.positionData('enemy');
     Battleship.GameState.spawnPlayerBoard(Battleship.game.data.playerBoard);
     Battleship.GameState.playerCells.visible = false;
 
@@ -322,12 +342,13 @@ Battleship.GameState.create = function() {
     Battleship.GameState.hitGroup = Battleship.game.add.group();
     Battleship.GameState.hitEnemyGroup = Battleship.game.add.group();
 
+    Battleship.GameState.enemySmokeGroup = Battleship.game.add.group();
+    Battleship.GameState.playerSmokeGroup = Battleship.game.add.group();
+
     Battleship.GameState.music = Battleship.GameState.add.audio('music');
     Battleship.GameState.music.loopFull(0.4);
     Battleship.game.isReady = true;
-    Battleship.GameState.bar.visible = false;
-    Battleship.GameState.msg.visible = false;
-  }, 1000);
+  }, 10);
 
   // Keeps track of score
   this.scoreKeep(this.scoreText);
@@ -538,6 +559,7 @@ function changeBoardsToEnemys(isEnemys) {
   Battleship.GameState.score.visible = !isEnemys;
   Battleship.GameState.cells.visible = !isEnemys;
   Battleship.GameState.hitGroup.visible = !isEnemys;
+  Battleship.GameState.enemySmokeGroup.visible = !isEnemys;
   // Delay ammo visibility to switch to appropriate board
   setTimeout(function(){ Battleship.GameState.ammo.setAll('visible', !isEnemys); }, 500);
 
@@ -546,6 +568,7 @@ function changeBoardsToEnemys(isEnemys) {
   // Delay ammo visibility to switch to appropriate board
   setTimeout(function(){ Battleship.GameState.enemyAmmo.setAll('visible', isEnemys); }, 500);
   Battleship.GameState.hitEnemyGroup.visible = isEnemys;
+  Battleship.GameState.playerSmokeGroup.visible = isEnemys;
   // if players turn, show all sunken enemy ships and hide the rest along with the enemys' board ships, else hide all enemy ships and show all players ships
   if (Battleship.GameState.cells.visible) {
     for (var i = 2; i < 7; i++) {

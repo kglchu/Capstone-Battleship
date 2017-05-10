@@ -33,14 +33,11 @@ Battleship.GameState.spawnPlayerBoard = function(board) {
       pCell.isHit = false;
     }
   }
-    this.game.data.currentPlayerBoard = this.playerCells;
 };
 
 Battleship.GameState.enemyHit = function(cell) {
   // mark off enemy ship
   cell.hasEnemy = false;
-  cell.frame = 1;
-  this.game.data.currentEnemyBoard.cellStatus = cell.frame;
   // loads and plays explosion audio when hit
   this.shipHit = this.add.audio('explosion');
   this.shipHit.play();
@@ -130,7 +127,6 @@ Battleship.GameState.sunkEnemyBattleship = function(cell) {
 Battleship.GameState.miss = function(cell) {
   // mark a miss sprite on the board
   cell.frame = 2;
-  this.game.data.currentEnemyBoard.cellStatus = cell.frame;
   // loads and plays miss audio
   this.missEnemy = this.add.audio('miss');
   this.missEnemy.play();
@@ -182,6 +178,7 @@ Battleship.GameState.checkEnemyCollision = function() {
         // enemy was hit
         this.getExplosion(cell, cell.posX, cell.posY);
         this.getHitLocation("enemy", cell, cell.x, cell.y);
+        this.shipSmoke("enemy", cell, cell.x, cell.y);
         this.enemyHit(cell);
         // check for sunken ship
         this.sunkPlayerBattleship(cell);
@@ -201,12 +198,6 @@ Battleship.GameState.checkEnemyCollision = function() {
 
         // destroy all objects before restarting game
         this.music.stop();
-        // this.gun.destroy();
-        // this.ship2.location.destroy();
-        // this.ship3.location.destroy();
-        // this.ship4.location.destroy();
-        // this.ship5.location.destroy();
-        // this.ship6.location.destroy();
         this.game.data.loser = "player";
         this.game.state.start("GameOverState");
       }
