@@ -36,6 +36,7 @@ Battleship.GameState.spawnEnemyBoard = function(board) {
       cell.hasEnemy = cell.marker > 0;
       // click events
       cell.events.onInputDown.add(this.selectCell, this);
+      cell.events.onInputUp.add(this.unselectCell, this);
     }
   }
 };
@@ -193,6 +194,26 @@ Battleship.GameState.update = function() {
   }
 };
 
+Battleship.GameState.crashingWaves = function() {
+  var waveSprites = this.oceanWaves.getFirstDead();
+
+  if (!waveSprites) {
+    waveSprites = this.oceanWaves.create(this.game.world.centerX, this.game.height - 105, 'waves', 0);
+    waveSprites.anchor.setTo(0.5);
+    waveSprites.height = 20
+
+    var animation = waveSprites.animations.add('smoothWaves', [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ], 18, false);
+    animation.killOnComplete = true;
+
+    this.oceanWaves.add(waveSprites);
+  } 
+
+  waveSprites.revive();
+  waveSprites.animations.play('smoothWaves');
+
+  return waveSprites;
+};
+
 Battleship.GameState.getExplosion = function(cell, x, y) {
   var explosion = this.explosionGroup.getFirstDead();
 
@@ -287,6 +308,9 @@ Battleship.GameState.shipSmoke = function (target, cell, x, y) {
 
 Battleship.GameState.selectCell = function(cell) {
   // enemy grabbing cell and starting the shoot bullet method
+  cell.height = 68
+  cell.width = 68
+  cell.tint = 0x7F0B0A;
   if(cell.frame === 0 && this.game.data.turn == "enemy") {
       // shoot bullet at selected cell from the simulated shooting method
       this.shootBullet();
@@ -317,6 +341,12 @@ Battleship.GameState.selectCell = function(cell) {
   }  
 };
 
+Battleship.GameState.unselectCell = function(cell) {
+    cell.height = 64
+  cell.width = 64
+  cell.tint = 0xffffff;
+};
+
 // collision method to keep track of the damage done to enemy
 Battleship.GameState.checkPlayerCollision = function() {
   this.game.physics.arcade.collide(this.bulletPool, this.cells, function(bullet, cell) {
@@ -325,6 +355,7 @@ Battleship.GameState.checkPlayerCollision = function() {
     // disable all other cells to collide with selected cell
     if(cell.body.enable) {
       cell.body.enable = false;
+      cell.input.enabled = false
     }
     // enemy was hit
     if (cell.hasEnemy) {

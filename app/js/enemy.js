@@ -144,6 +144,9 @@ Battleship.GameState.simulateShooting = function(cellGroup) {
           // this.gun.rotation = Math.atan2(cell.y-this.gun.y, cell.x-this.gun.x);
             this.gun.rotation = Math.atan2( cell.y - this.gun.y, cell.x - this.gun.x );
             this.selectCell(cell);
+            setTimeout(function () {
+                Battleship.GameState.unselectCell(cell);
+            }, 350);
         } else {
             this.simulateShooting(this.playerCells);
         }

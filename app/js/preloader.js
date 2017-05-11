@@ -2,6 +2,8 @@ Battleship.GameState.init = function() {
   // player always starts first
   this.game.data.turn = "player";
   this.scoreText = "Player Score: ";
+  this.game.data.playerBoardIndex = null;
+  this.game.data.enemyBoardIndex = null;
   this.ammo = null;
 
   this.levels = {};
@@ -251,6 +253,7 @@ Battleship.GameState.preload = function() {
   this.load.spritesheet('cannon', 'img/assets/gfx/cannon_sprites.png', 96, 30);
   this.load.spritesheet('smoke', 'img/assets/gfx/smoke_spritesheet.png', 21, 52);
   this.load.spritesheet('fire', 'img/assets/gfx/fire_spritesheet.png', 22, 40);
+  this.load.spritesheet('waves', 'img/assets/gfx/waves_spritesheet.png', 664, 160);
 
   // music
   this.load.audio('music', ['img/assets/audio/Battleship.mp3', 'img/assets/audio/Battleship.ogg']);
@@ -294,10 +297,10 @@ Battleship.GameState.positionData = function(user) {
 Battleship.GameState.create = function() {
   this.game.stage.backgroundColor = '#4488cc';
 
-  // draws enemy board for player
-  this.game.data.enemyBoard = this.positionData('player');
-  console.log(this.game.data.enemyBoard);
-  this.spawnEnemyBoard(this.game.data.enemyBoard);
+  // waves group and animations
+  this.oceanWaves = this.game.add.group();
+  // loop for waves animation
+  this.wavesTimer = this.game.time.events.loop(Phaser.Timer.SECOND * this.game.rnd.integerInRange(3, 6), this.crashingWaves, this);
 
   // group that draws the missiles representing the reservedBullets variable
   this.ammo = this.game.add.group();
@@ -306,49 +309,51 @@ Battleship.GameState.create = function() {
   this.drawAmmoSprites();
   this.enemyAmmo.setAll('visible', false);
 
+  // draws enemy board for player
+  this.game.data.enemyBoard = this.positionData('player');
+  this.spawnEnemyBoard(this.game.data.enemyBoard);
+
   // draws the player board for enemy
-  setTimeout(function(){
-    Battleship.game.data.playerBoard = Battleship.GameState.positionData('enemy');
-    Battleship.GameState.spawnPlayerBoard(Battleship.game.data.playerBoard);
-    Battleship.GameState.playerCells.visible = false;
+  this.game.data.playerBoard = this.positionData('enemy');
+  this.spawnPlayerBoard(this.game.data.playerBoard);
+  this.playerCells.visible = false;
 
-    Battleship.GameState.bulletPool = Battleship.game.add.group();
-    for (var i = 0; i < Battleship.GameState.NUMBER_OF_BULLETS; i++) {
-      var bullet = Battleship.game.add.sprite(0, 0, 'bullet');
-      Battleship.GameState.bulletPool.add(bullet);
+  this.bulletPool = this.game.add.group();
+  for (var i = 0; i < this.NUMBER_OF_BULLETS; i++) {
+    var bullet = this.game.add.sprite(0, 0, 'bullet');
+    this.bulletPool.add(bullet);
 
-      bullet.anchor.setTo(0.5, 0.5);
+    bullet.anchor.setTo(0.5, 0.5);
 
-      Battleship.game.physics.enable(bullet, Phaser.Physics.ARCADE);
-      bullet.kill();
-    }
+    this.game.physics.enable(bullet, Phaser.Physics.ARCADE);
+    bullet.kill();
+  }
 
-     // cannon
-    Battleship.GameState.gun = Battleship.GameState.add.sprite(Battleship.game.width / 2, Battleship.game.height - 12, 'cannon');
-    Battleship.GameState.gun.anchor.setTo(0.25,0.5);
-    Battleship.GameState.gun.animations.add('kaboom', [1, 1, 1, 2, 2, 3, 0], 18, false);
-    // cannon base to allow cannon to hide unwanted visuals
-    Battleship.GameState.cannonBase = Battleship.GameState.add.sprite(Battleship.game.width / 2, Battleship.game.height - 5, 'cannonBase');
-    Battleship.GameState.cannonBase.anchor.setTo(0.5);
-    Battleship.GameState.cannonBase.angle = 180;
-    Battleship.GameState.cannonBase.width = 128;
+   // cannon
+  this.gun = this.add.sprite(this.game.width / 2, this.game.height - 12, 'cannon');
+  this.gun.anchor.setTo(0.25,0.5);
+  this.gun.animations.add('kaboom', [1, 1, 1, 2, 2, 3, 0], 18, false);
+  // cannon base to allow cannon to hide unwanted visuals
+  this.cannonBase = this.add.sprite(this.game.width / 2, this.game.height - 5, 'cannonBase');
+  this.cannonBase.anchor.setTo(0.5);
+  this.cannonBase.angle = 180;
+  this.cannonBase.width = 128;
 
-    // simulates mouse pointer in center of stage
-    Battleship.game.input.activePointer.x = Battleship.game.width / 2;
-    Battleship.game.input.activePointer.y = Battleship.game.height / 2;
+  // simulates mouse pointer in center of stage
+  this.game.input.activePointer.x = this.game.width / 2;
+  this.game.input.activePointer.y = this.game.height / 2;
 
-    Battleship.GameState.explosionGroup = Battleship.game.add.group();
-    // hit groups responsible for drawing the hit cell over ship sprites
-    Battleship.GameState.hitGroup = Battleship.game.add.group();
-    Battleship.GameState.hitEnemyGroup = Battleship.game.add.group();
+  this.explosionGroup = this.game.add.group();
+  // hit groups responsible for drawing the hit cell over ship sprites
+  this.hitGroup = this.game.add.group();
+  this.hitEnemyGroup = this.game.add.group();
 
-    Battleship.GameState.enemySmokeGroup = Battleship.game.add.group();
-    Battleship.GameState.playerSmokeGroup = Battleship.game.add.group();
+  this.enemySmokeGroup = this.game.add.group();
+  this.playerSmokeGroup = this.game.add.group();
 
-    Battleship.GameState.music = Battleship.GameState.add.audio('music');
-    Battleship.GameState.music.loopFull(0.4);
-    Battleship.game.isReady = true;
-  }, 10);
+  this.music = this.add.audio('music');
+  this.music.loopFull(0.4);
+  this.game.isReady = true;
 
   // Keeps track of score
   this.scoreKeep(this.scoreText);
