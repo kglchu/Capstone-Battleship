@@ -519,12 +519,12 @@ Battleship.GameState.shipPlacement = function (target, cell, ship, isVisible, in
 
 Battleship.GameState.switchTurn = function(player) {
   // switches turn from current user [player -> enemy, enemy -> player]
-  if (player === "player") {
+  if (player === "player" && !this.game.data.loser) {
     this.reservedBullets = 6;
     this.game.data.turn = "player";
     this.bannerMessage();
     this.viewMessage();
-  } else if (player === "enemy") {
+  } else if (player === "enemy" && !this.game.data.loser) {
     this.reservedBullets = 6;
     this.game.data.turn = "enemy";
     this.bannerMessage();

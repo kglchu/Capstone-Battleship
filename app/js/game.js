@@ -25,7 +25,6 @@ Battleship.GameState.spawnEnemyBoard = function(board) {
     for (var row = 0; row < this.BOARD_ROWS; row++) {
       var cell = this.cells.create((col * this.CELL_SIZE_SPACED) + this.CELL_SIZE_SPACED/2 + 2, (row * this.CELL_SIZE_SPACED + this.CELL_SIZE/2 + 64), 'cell', 0);
       cell.anchor.setTo(0.5, 0.5);
-      cell.name = 'cell: ' + col.toString() + 'x' + row.toString();
       cell.inputEnabled = true;
       cell.enemyContact = 0; // var used to represent successful hit
       cell.marker = board.matrix[row][col];
@@ -53,6 +52,9 @@ Battleship.GameState.sunkPlayerBattleship = function(cell) {
                 this.sunkShip.play();
                 this.shakeCamera();
                 //this.playerShips.ship2.location.visible = true;
+                this.playerShipLastHit = null;
+                this.playerShipFound = false;
+                this.totalPlayerHits = 0;
                 this.playerShips.ship2.sunken = true;
                 return true;
             }
@@ -65,6 +67,9 @@ Battleship.GameState.sunkPlayerBattleship = function(cell) {
                 this.sunkShip.play();
                 this.shakeCamera();
                 //this.playerShips.ship3.location.visible = true;
+                this.playerShipLastHit = null;
+                this.playerShipFound = false;
+                this.totalPlayerHits = 0;
                 this.playerShips.ship2.sunken = true;
                 return true;
             }
@@ -77,6 +82,9 @@ Battleship.GameState.sunkPlayerBattleship = function(cell) {
                 this.sunkShip.play();
                 this.shakeCamera();
                 //this.playerShips.ship4.location.visible = true;
+                this.playerShipLastHit = null;
+                this.playerShipFound = false;
+                this.totalPlayerHits = 0;
                 this.playerShips.ship2.sunken = true;
                 return true;
             }
@@ -89,6 +97,9 @@ Battleship.GameState.sunkPlayerBattleship = function(cell) {
                 this.sunkShip.play();
                 this.shakeCamera();
                 //this.playerShips.ship5.location.visible = true;
+                this.playerShipLastHit = null;
+                this.playerShipFound = false;
+                this.totalPlayerHits = 0;
                 this.playerShips.ship2.sunken = true;
                 return true;
             }
@@ -101,6 +112,9 @@ Battleship.GameState.sunkPlayerBattleship = function(cell) {
                 this.sunkShip.play();
                 this.shakeCamera();
                 //this.playerShips.ship6.location.visible = true;
+                this.playerShipLastHit = null;
+                this.playerShipFound = false;
+                this.totalPlayerHits = 0;
                 this.playerShips.ship2.sunken = true;
                 return true;
             }
@@ -200,7 +214,7 @@ Battleship.GameState.crashingWaves = function() {
   if (!waveSprites) {
     waveSprites = this.oceanWaves.create(this.game.world.centerX, this.game.height - 105, 'waves', 0);
     waveSprites.anchor.setTo(0.5);
-    waveSprites.height = 20
+    waveSprites.height = 20;
 
     var animation = waveSprites.animations.add('smoothWaves', [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ], 18, false);
     animation.killOnComplete = true;
@@ -307,10 +321,12 @@ Battleship.GameState.shipSmoke = function (target, cell, x, y) {
 };
 
 Battleship.GameState.selectCell = function(cell) {
-  // enemy grabbing cell and starting the shoot bullet method
-  cell.height = 68
-  cell.width = 68
+  // change the look to emphasize selected cell
+  cell.height = 68;
+  cell.width = 68;
   cell.tint = 0x7F0B0A;
+  
+  // enemy grabbing cell and starting the shoot bullet method
   if(cell.frame === 0 && this.game.data.turn == "enemy") {
       // shoot bullet at selected cell from the simulated shooting method
       this.shootBullet();
@@ -342,8 +358,8 @@ Battleship.GameState.selectCell = function(cell) {
 };
 
 Battleship.GameState.unselectCell = function(cell) {
-    cell.height = 64
-  cell.width = 64
+  cell.height = 64;
+  cell.width = 64;
   cell.tint = 0xffffff;
 };
 
@@ -355,7 +371,7 @@ Battleship.GameState.checkPlayerCollision = function() {
     // disable all other cells to collide with selected cell
     if(cell.body.enable) {
       cell.body.enable = false;
-      cell.input.enabled = false
+      cell.input.enabled = false;
     }
     // enemy was hit
     if (cell.hasEnemy) {
@@ -389,7 +405,7 @@ Battleship.GameState.checkPlayerCollision = function() {
       // destroy all objects in order to clean up cache and start a new board
       this.music.stop();
       this.game.data.playerScore += Math.floor(Math.random() * (36 - 4)) + 4;
-      this.game.state.start("GameOverState");
+      setTimeout(function(){Battleship.game.state.start("GameOverState");}, 500);
     }
   }, null, this);
 };

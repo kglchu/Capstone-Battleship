@@ -22,7 +22,6 @@ Battleship.GameState.spawnPlayerBoard = function(board) {
     for (var Row = 0; Row < this.BOARD_ROWS; Row++) {
       var pCell = this.playerCells.create((Col * this.CELL_SIZE_SPACED) + this.CELL_SIZE_SPACED/2 + 2, (Row * this.CELL_SIZE_SPACED + this.CELL_SIZE/2 + 64), 'cell', 0);
       pCell.anchor.setTo(0.5, 0.5);
-      pCell.name = 'cell: ' + Col.toString() + 'x' + Row.toString();
       pCell.enemyContact = 0; // var used to represent successful hit
       pCell.marker = board.matrix[Row][Col];
       this.shipPlacement(this.playerShips, pCell, pCell.marker, false, board.index);
@@ -108,6 +107,8 @@ Battleship.GameState.sunkEnemyBattleship = function(cell) {
                 // make ship visible
                 this.enemyShips.ship6.location.visible = true;
                 this.enemyShips.ship6.sunken = true;
+                this.playerShipLastHit = null;
+                this.playerShipFound = false;
                 this.game.data.playerScore += 36;
             }
         break;
@@ -133,22 +134,48 @@ Battleship.GameState.miss = function(cell) {
 };
 
 Battleship.GameState.simulateShooting = function(cellGroup) {
-
     this.game.data.isShooting = true;
     // setTimeouts delay the shot by enemy AI and makes sure to recalculate
     // a shot if it chooses the same cell
+    var cell;
     if (this.reservedBullets > 0 && !this.game.data.loser) {
-        var cell = this.playerCells.getChildAt(this.game.rnd.integerInRange(0, 99));
-        // if the selected cell has not been hit, then fire at cell
-        if (!cell.isHit) {
-          // this.gun.rotation = Math.atan2(cell.y-this.gun.y, cell.x-this.gun.x);
-            this.gun.rotation = Math.atan2( cell.y - this.gun.y, cell.x - this.gun.x );
-            this.selectCell(cell);
-            setTimeout(function () {
+        // check to see if there were any ships hit
+        if(this.playerShipLastHit && this.playerShipFound) {
+            cell = this.getAdjacentCell(this.playerShipLastHit);
+            if (cell === undefined) {
+                this.playerShipLastHit += this.totalPlayerHits;
+                this.totalPlayerHits = 0;
+                cell = this.getAdjacentCell(this.playerShipLastHit);
+                if (!cell) {
+                    cell = this.playerCells.getChildAt(this.game.rnd.integerInRange(0, 99));
+                    this.playerShipLastHit = null;
+                    this.totalPlayerHits = 0;
+                    this.playerShipFound = false;
+                }
+            }
+            this.gun.rotation = Math.atan2(cell.y - this.gun.y, cell.x - this.gun.x);
+            if (!cell.isHit) {
+                this.selectCell(cell);
+                setTimeout(function () {
                 Battleship.GameState.unselectCell(cell);
-            }, 350);
-        } else {
-            this.simulateShooting(this.playerCells);
+                }, 350);
+            } else {
+                this.simulateShooting(this.playerCells);
+            }
+        } 
+
+        if (!cell && !this.playerShipFound) {
+            // if the selected cell has not been hit, then fire at cell
+            cell = this.playerCells.getChildAt(this.game.rnd.integerInRange(0, 99));
+            this.gun.rotation = Math.atan2(cell.y - this.gun.y, cell.x - this.gun.x);
+            if (!cell.isHit) {
+                this.selectCell(cell);
+                setTimeout(function () {
+                Battleship.GameState.unselectCell(cell);
+                }, 350);
+            } else {
+                this.simulateShooting(this.playerCells);
+            }
         }
     
     } else {
@@ -160,9 +187,44 @@ Battleship.GameState.simulateShooting = function(cellGroup) {
         
 };
 
-function callShootAgain (cells) {
+function callShootAgain(cells) {
     Battleship.GameState.simulateShooting(cells);
 }
+
+Battleship.GameState.getAdjacentCell = function(focusedCell) {
+    // nearbyCell will be the new selected cell
+    var nearbyCell;
+
+    // all cells that are near the currently focused cell
+    var rightCell = this.playerCells.getChildAt(focusedCell + 10);
+    var leftCell = this.playerCells.getChildAt(focusedCell - 10);
+    var topCell = this.playerCells.getChildAt(focusedCell - 1);
+    var bottomCell = this.playerCells.getChildAt(focusedCell + 1);
+
+    if (!bottomCell.isHit && bottomCell.hasEnemy){
+        nearbyCell = this.playerCells.getChildAt(focusedCell + 1);
+        this.totalPlayerHits -= 1;
+        return nearbyCell;
+    }
+
+    if(!topCell.isHit && topCell.hasEnemy){
+        nearbyCell = this.playerCells.getChildAt(focusedCell - 1);
+        this.totalPlayerHits += 1;
+        return nearbyCell;
+    }
+
+    if (!rightCell.isHit && rightCell.hasEnemy) {
+        nearbyCell = this.playerCells.getChildAt(focusedCell + 10);
+        this.totalPlayerHits -= 10;
+        return nearbyCell;
+    }
+
+    if (!leftCell.isHit && leftCell.hasEnemy){
+        nearbyCell = this.playerCells.getChildAt(focusedCell - 10);
+        this.totalPlayerHits += 10;
+        return nearbyCell;
+    }
+};
 
 Battleship.GameState.updateEnemyAmmo = function() {
   var ammo = this.enemyAmmo.getChildAt(this.reservedBullets - 1);
@@ -179,17 +241,25 @@ Battleship.GameState.checkEnemyCollision = function() {
 
       if (cell.hasEnemy) {
         // enemy was hit
+        this.playerShipLastHit = this.playerCells.getChildIndex(cell);
         this.getExplosion(cell, cell.posX, cell.posY);
         this.getHitLocation("enemy", cell, cell.x, cell.y);
         this.shipSmoke("enemy", cell, cell.x, cell.y);
         this.enemyHit(cell);
+        this.playerShipFound = true;
         // check for sunken ship
         this.sunkPlayerBattleship(cell);
-        this.game.data.playerScore += cell.enemyContact;
+        this.game.data.playerScore -= cell.enemyContact;
+        this.score.text = this.scoreText + this.game.data.playerScore;
+        if (this.game.data.playerScore < 0) {
+            this.score.text = this.scoreText + 0;
+        }
         setTimeout(function () { callShootAgain(this.playerCells); }, 900);
       } else {
           // there is nothing in the cell
           this.miss(cell);
+          this.totalPlayerHits = 0;
+          this.playerShipLastHit = this.playerCells.getChildIndex(cell);
           setTimeout(function () { callShootAgain(this.playerCells); }, 1200);
       }
 
@@ -202,7 +272,7 @@ Battleship.GameState.checkEnemyCollision = function() {
         // destroy all objects before restarting game
         this.music.stop();
         this.game.data.loser = "player";
-        this.game.state.start("GameOverState");
+        setTimeout(function(){Battleship.game.state.start("GameOverState");}, 500);
       }
 
       if(cell.body.enable) {

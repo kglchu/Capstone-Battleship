@@ -12,3 +12,8 @@ Battleship.GameState.BOARD_ROWS; // rows
 Battleship.GameState.CELL_SIZE = 64; // pixels
 Battleship.GameState.CELL_SPACING = 2; // margin/spacing
 Battleship.GameState.CELL_SIZE_SPACED = Battleship.GameState.CELL_SIZE + Battleship.GameState.CELL_SPACING; // total size of cell
+
+// variable used to keep track of last cell hit and if it was populated or not
+Battleship.GameState.playerShipLastHit = null;
+Battleship.GameState.playerShipFound = false;
+Battleship.GameState.totalPlayerHits = 0;
