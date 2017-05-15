@@ -35,5 +35,5 @@ Battleship.HomeState.gameStart = function(state) {
 };
 
 Battleship.HomeState.shutdown = function() {
-  console.log("shutdown homestate");
+  
 };

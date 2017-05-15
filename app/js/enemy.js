@@ -42,95 +42,102 @@ Battleship.GameState.enemyHit = function(cell) {
   this.shipHit.play();
 };
 
-Battleship.GameState.sunkEnemyBattleship = function(cell) {
-    // check to see if all markers of the enemy have been hit
-    switch (cell.enemyContact)
-    {
-        case 2:
-            this.cells.ship2 += cell.enemyContact;
-            if (this.cells.ship2 === 4) {
-                this.sunkShip = this.add.audio('sunkenShip');
-                this.sunkShip.play();
-                this.shakeCamera();
-                // make ship visible
-                this.enemyShips.ship2.location.visible = true;
-                this.enemyShips.ship2.sunken = true;
-                this.game.data.playerScore += 4;
-            }
-        break;
-
-        case 3:
-            this.cells.ship3 += cell.enemyContact;
-            if (this.cells.ship3 === 9) {
-                this.sunkShip = this.add.audio('sunkenShip');
-                this.sunkShip.play();
-                this.shakeCamera();
-                // make ship visible
-                this.enemyShips.ship3.location.visible = true;
-                this.enemyShips.ship3.sunken = true;
-                this.game.data.playerScore += 9;
-            }
-        break;
-
-        case 4:
-            this.cells.ship4 += cell.enemyContact;
-            if (this.cells.ship4 === 16) {
-                this.sunkShip = this.add.audio('sunkenShip');
-                this.sunkShip.play();
-                this.shakeCamera();
-                // make ship visible
-                this.enemyShips.ship4.location.visible = true;
-                this.enemyShips.ship4.sunken = true;
-                this.game.data.playerScore += 16;
-            }
-        break;
-
-        case 5:
-            this.cells.ship5 += cell.enemyContact;
-            if (this.cells.ship5 === 25) {
-                this.sunkShip = this.add.audio('sunkenShip');
-                this.sunkShip.play();
-                this.shakeCamera();
-                // make ship visible
-                this.enemyShips.ship5.location.visible = true;
-                this.enemyShips.ship5.sunken = true;
-                this.game.data.playerScore += 25;
-            }
-        break;
-
-        case 6:
-            this.cells.ship6 += cell.enemyContact;
-            if (this.cells.ship6 === 36) {
-                this.sunkShip = this.add.audio('sunkenShip');
-                this.sunkShip.play();
-                this.shakeCamera();
-                // make ship visible
-                this.enemyShips.ship6.location.visible = true;
-                this.enemyShips.ship6.sunken = true;
-                this.playerShipLastHit = null;
-                this.playerShipFound = false;
-                this.game.data.playerScore += 36;
-            }
-        break;
-    }
-
-    // checks if enemy lost
-    if (this.enemyShips.ship2.location.visible === true && this.enemyShips.ship3.location.visible === true && this.enemyShips.ship4.location.visible === true && this.enemyShips.ship5.location.visible === true && this.enemyShips.ship6.location.visible === true) {
-        this.game.data.loser = "enemy";
-        this.enemyShips.ship2.location.visible = false;
-        this.enemyShips.ship3.location.visible = false;
-        this.enemyShips.ship4.location.visible = false;
-        this.enemyShips.ship5.location.visible = false;
-        this.enemyShips.ship6.location.visible = false;
-    }
-};
-
 Battleship.GameState.miss = function(cell) {
   // mark a miss sprite on the board
   cell.frame = 2;
   // loads and plays miss audio
   this.missEnemy = this.add.audio('miss');
   this.missEnemy.play();
+};
+
+// checks for any player ship that has sunk
+Battleship.GameState.sunkPlayerBattleship = function(cell) {
+    // check to see if all markers of the enemy have been hit
+    switch (cell.enemyContact)
+    {
+        case 2:
+            this.playerCells.ship2 += cell.enemyContact;
+            if (this.playerCells.ship2 === 4) {
+                this.sunkShip = this.add.audio('sunkenShip');
+                this.sunkShip.play();
+                this.shakeCamera();
+                //this.playerShips.ship2.location.visible = true;
+                this.playerShipLastHit = null;
+                this.playerShipFound = false;
+                this.totalPlayerHits = 0;
+                this.playerShips.ship2.sunken = true;
+                return true;
+            }
+            return false;
+
+        case 3:
+            this.playerCells.ship3 += cell.enemyContact;
+            if (this.playerCells.ship3 === 9) {
+                this.sunkShip = this.add.audio('sunkenShip');
+                this.sunkShip.play();
+                this.shakeCamera();
+                //this.playerShips.ship3.location.visible = true;
+                this.playerShipLastHit = null;
+                this.playerShipFound = false;
+                this.totalPlayerHits = 0;
+                this.playerShips.ship2.sunken = true;
+                return true;
+            }
+            return false;
+
+        case 4:
+            this.playerCells.ship4 += cell.enemyContact;
+            if (this.playerCells.ship4 === 16) {
+                this.sunkShip = this.add.audio('sunkenShip');
+                this.sunkShip.play();
+                this.shakeCamera();
+                //this.playerShips.ship4.location.visible = true;
+                this.playerShipLastHit = null;
+                this.playerShipFound = false;
+                this.totalPlayerHits = 0;
+                this.playerShips.ship2.sunken = true;
+                return true;
+            }
+            return false;
+
+        case 5:
+            this.playerCells.ship5 += cell.enemyContact;
+            if (this.playerCells.ship5 === 25) {
+                this.sunkShip = this.add.audio('sunkenShip');
+                this.sunkShip.play();
+                this.shakeCamera();
+                //this.playerShips.ship5.location.visible = true;
+                this.playerShipLastHit = null;
+                this.playerShipFound = false;
+                this.totalPlayerHits = 0;
+                this.playerShips.ship2.sunken = true;
+                return true;
+            }
+            return false;
+
+        case 6:
+            this.playerCells.ship6 += cell.enemyContact;
+            if (this.playerCells.ship6 === 36) {
+                this.sunkShip = this.add.audio('sunkenShip');
+                this.sunkShip.play();
+                this.shakeCamera();
+                //this.playerShips.ship6.location.visible = true;
+                this.playerShipLastHit = null;
+                this.playerShipFound = false;
+                this.totalPlayerHits = 0;
+                this.playerShips.ship2.sunken = true;
+                return true;
+            }
+            return false;
+
+        default: 
+        return false;
+    }
+
+    // checks if player lost
+    if (this.playerShips.ship2.sunken === true && this.playerShips.ship3.sunken === true && this.playerShips.ship4.sunken === true && this.playerShips.ship5.sunken === true && this.playerShips.ship6.sunken === true) {
+        this.game.data.loser = "player";
+    }
 };
 
 Battleship.GameState.simulateShooting = function(cellGroup) {
@@ -194,35 +201,93 @@ function callShootAgain(cells) {
 Battleship.GameState.getAdjacentCell = function(focusedCell) {
     // nearbyCell will be the new selected cell
     var nearbyCell;
+    var target = focusedCell;
 
-    // all cells that are near the currently focused cell
-    var rightCell = this.playerCells.getChildAt(focusedCell + 10);
-    var leftCell = this.playerCells.getChildAt(focusedCell - 10);
-    var topCell = this.playerCells.getChildAt(focusedCell - 1);
-    var bottomCell = this.playerCells.getChildAt(focusedCell + 1);
+    // bottom cell that is near the currently focused cell
+    var bottomCell = this.checkBottomCell(target);
 
-    if (!bottomCell.isHit && bottomCell.hasEnemy){
-        nearbyCell = this.playerCells.getChildAt(focusedCell + 1);
-        this.totalPlayerHits -= 1;
-        return nearbyCell;
+    if(bottomCell) {
+        if (!bottomCell.isHit && bottomCell.hasEnemy){
+            nearbyCell = this.playerCells.getChildAt(target + 1);
+            this.totalPlayerHits -= 1;
+            return nearbyCell;
+        }
+    }
+    // top cell that is near the currently focused cell
+    var topCell = this.checkTopCell(target);
+
+    if(topCell) {
+        if(!topCell.isHit && topCell.hasEnemy){
+            nearbyCell = this.playerCells.getChildAt(target - 1);
+            this.totalPlayerHits += 1;
+            return nearbyCell;
+        }
+    }
+    // left cell that is near the currently focused cell
+    var leftCell = this.checkLeftCell(target);
+
+    if(leftCell) {
+        if (!leftCell.isHit && leftCell.hasEnemy){
+            nearbyCell = this.playerCells.getChildAt(target - 10);
+            this.totalPlayerHits += 10;
+            return nearbyCell;
+        }
+    }  
+    // right cell that is near the currently focused cell
+    var rightCell = this.checkRightCell(target);
+
+    if(rightCell) {
+        if (!rightCell.isHit && rightCell.hasEnemy) {
+            nearbyCell = this.playerCells.getChildAt(target + 10);
+            this.totalPlayerHits -= 10;
+            return nearbyCell;
+        }
+    }
+};
+
+Battleship.GameState.checkTopCell = function(target) {
+    var cell = this.playerCells.getChildAt(target - 1);
+    if (cell) {
+        return cell;
+    } else {
+        return undefined;
+    }
+};
+
+Battleship.GameState.checkBottomCell = function(target) {
+    var cell = this.playerCells.getChildAt(target + 1);
+    if (cell) {
+        return cell;
+    } else {
+        return undefined;
+    }
+};
+
+Battleship.GameState.checkRightCell = function(target) {
+    if (target < 9 || target > 90) {
+        return undefined;
+    } else {
+        var cell = this.playerCells.getChildAt(target + 10);
     }
 
-    if(!topCell.isHit && topCell.hasEnemy){
-        nearbyCell = this.playerCells.getChildAt(focusedCell - 1);
-        this.totalPlayerHits += 1;
-        return nearbyCell;
+    if (cell) {
+        return cell;
+    } else {
+        return undefined;
+    }
+};
+
+Battleship.GameState.checkLeftCell = function(target) {
+    if (target < 9 || target > 90) {
+        return undefined;
+    } else {
+        var cell = this.playerCells.getChildAt(target - 10);
     }
 
-    if (!rightCell.isHit && rightCell.hasEnemy) {
-        nearbyCell = this.playerCells.getChildAt(focusedCell + 10);
-        this.totalPlayerHits -= 10;
-        return nearbyCell;
-    }
-
-    if (!leftCell.isHit && leftCell.hasEnemy){
-        nearbyCell = this.playerCells.getChildAt(focusedCell - 10);
-        this.totalPlayerHits += 10;
-        return nearbyCell;
+    if (cell) {
+        return cell;
+    } else {
+        return undefined;
     }
 };
 
@@ -252,6 +317,7 @@ Battleship.GameState.checkEnemyCollision = function() {
         this.game.data.playerScore -= cell.enemyContact;
         this.score.text = this.scoreText + this.game.data.playerScore;
         if (this.game.data.playerScore < 0) {
+            this.game.data.playerScore = 0;
             this.score.text = this.scoreText + 0;
         }
         setTimeout(function () { callShootAgain(this.playerCells); }, 900);
@@ -292,6 +358,8 @@ Battleship.GameState.GameOverEnemy = function() {
 
   if (enemyBoardScore <=0 && this.game.data.turn == "enemy") {
     this.gameOver = true;
+    this.game.data.playerScore = 0;
+    this.score.text = this.scoreText + 0;
   } else {
     this.gameOver = false;
   }

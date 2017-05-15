@@ -40,93 +40,89 @@ Battleship.GameState.spawnEnemyBoard = function(board) {
   }
 };
 
-// checks for any player ship that has sunk
-Battleship.GameState.sunkPlayerBattleship = function(cell) {
+// checks to see if player sank any enemy battleships
+Battleship.GameState.sunkEnemyBattleship = function(cell) {
     // check to see if all markers of the enemy have been hit
     switch (cell.enemyContact)
     {
         case 2:
-            this.playerCells.ship2 += cell.enemyContact;
-            if (this.playerCells.ship2 === 4) {
+            this.cells.ship2 += cell.enemyContact;
+            if (this.cells.ship2 === 4) {
                 this.sunkShip = this.add.audio('sunkenShip');
                 this.sunkShip.play();
                 this.shakeCamera();
-                //this.playerShips.ship2.location.visible = true;
-                this.playerShipLastHit = null;
-                this.playerShipFound = false;
-                this.totalPlayerHits = 0;
-                this.playerShips.ship2.sunken = true;
-                return true;
+                // make ship visible
+                this.enemyShips.ship2.location.visible = true;
+                this.enemyShips.ship2.sunken = true;
+                this.game.data.playerScore += 4;
             }
-            return false;
+        break;
 
         case 3:
-            this.playerCells.ship3 += cell.enemyContact;
-            if (this.playerCells.ship3 === 9) {
+            this.cells.ship3 += cell.enemyContact;
+            if (this.cells.ship3 === 9) {
                 this.sunkShip = this.add.audio('sunkenShip');
                 this.sunkShip.play();
                 this.shakeCamera();
-                //this.playerShips.ship3.location.visible = true;
-                this.playerShipLastHit = null;
-                this.playerShipFound = false;
-                this.totalPlayerHits = 0;
-                this.playerShips.ship2.sunken = true;
-                return true;
+                // make ship visible
+                this.enemyShips.ship3.location.visible = true;
+                this.enemyShips.ship3.sunken = true;
+                this.game.data.playerScore += 9;
             }
-            return false;
+        break;
 
         case 4:
-            this.playerCells.ship4 += cell.enemyContact;
-            if (this.playerCells.ship4 === 16) {
+            this.cells.ship4 += cell.enemyContact;
+            if (this.cells.ship4 === 16) {
                 this.sunkShip = this.add.audio('sunkenShip');
                 this.sunkShip.play();
                 this.shakeCamera();
-                //this.playerShips.ship4.location.visible = true;
-                this.playerShipLastHit = null;
-                this.playerShipFound = false;
-                this.totalPlayerHits = 0;
-                this.playerShips.ship2.sunken = true;
-                return true;
+                // make ship visible
+                this.enemyShips.ship4.location.visible = true;
+                this.enemyShips.ship4.sunken = true;
+                this.game.data.playerScore += 16;
             }
-            return false;
+        break;
 
         case 5:
-            this.playerCells.ship5 += cell.enemyContact;
-            if (this.playerCells.ship5 === 25) {
+            this.cells.ship5 += cell.enemyContact;
+            if (this.cells.ship5 === 25) {
                 this.sunkShip = this.add.audio('sunkenShip');
                 this.sunkShip.play();
                 this.shakeCamera();
-                //this.playerShips.ship5.location.visible = true;
-                this.playerShipLastHit = null;
-                this.playerShipFound = false;
-                this.totalPlayerHits = 0;
-                this.playerShips.ship2.sunken = true;
-                return true;
+                // make ship visible
+                this.enemyShips.ship5.location.visible = true;
+                this.enemyShips.ship5.sunken = true;
+                this.game.data.playerScore += 25;
             }
-            return false;
+        break;
 
         case 6:
-            this.playerCells.ship6 += cell.enemyContact;
-            if (this.playerCells.ship6 === 36) {
+            this.cells.ship6 += cell.enemyContact;
+            if (this.cells.ship6 === 36) {
                 this.sunkShip = this.add.audio('sunkenShip');
                 this.sunkShip.play();
                 this.shakeCamera();
-                //this.playerShips.ship6.location.visible = true;
+                // make ship visible
+                this.enemyShips.ship6.location.visible = true;
+                this.enemyShips.ship6.sunken = true;
                 this.playerShipLastHit = null;
                 this.playerShipFound = false;
-                this.totalPlayerHits = 0;
-                this.playerShips.ship2.sunken = true;
-                return true;
+                this.game.data.playerScore += 36;
             }
-            return false;
-
-        default: 
-        return false;
+        break;
     }
 
     // checks if enemy lost
-    if (this.playerShips.ship2.sunken === true && this.playerShips.ship3.sunken === true && this.playerShips.ship4.sunken === true && this.playerShips.ship5.sunken === true && this.playerShips.ship6.sunken === true) {
-        this.game.data.loser = "player";
+    if (this.enemyShips.ship2.location.visible === true && this.enemyShips.ship3.location.visible === true && this.enemyShips.ship4.location.visible === true && this.enemyShips.ship5.location.visible === true && this.enemyShips.ship6.location.visible === true) {
+        setTimeout (function(){
+            Battleship.game.data.loser = "enemy";
+            Battleship.GameState.enemyShips.ship2.location.visible = false;
+            Battleship.GameState.enemyShips.ship3.location.visible = false;
+            Battleship.GameState.enemyShips.ship4.location.visible = false;
+            Battleship.GameState.enemyShips.ship5.location.visible = false;
+            Battleship.GameState.enemyShips.ship6.location.visible = false;
+        }, 750);
     }
 };
 
@@ -405,7 +401,7 @@ Battleship.GameState.checkPlayerCollision = function() {
       // destroy all objects in order to clean up cache and start a new board
       this.music.stop();
       this.game.data.playerScore += Math.floor(Math.random() * (36 - 4)) + 4;
-      setTimeout(function(){Battleship.game.state.start("GameOverState");}, 500);
+      setTimeout(function(){Battleship.game.state.start("GameOverState");}, 800);
     }
   }, null, this);
 };
