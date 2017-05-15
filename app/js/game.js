@@ -106,8 +106,6 @@ Battleship.GameState.sunkEnemyBattleship = function(cell) {
                 // make ship visible
                 this.enemyShips.ship6.location.visible = true;
                 this.enemyShips.ship6.sunken = true;
-                this.playerShipLastHit = null;
-                this.playerShipFound = false;
                 this.game.data.playerScore += 36;
             }
         break;
