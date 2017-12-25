@@ -13,6 +13,14 @@ var concat = require('gulp-concat')
 var environment = 'development'
 
 var jsFiles = [
+  'app/js/mainGame/mainGame.js',
+  'app/js/mainGame/mainGame_Boot.js',
+  'app/js/mainGame/mainGame_Home.js',
+  'app/js/mainGame/mainGame_Gameover.js',
+  'app/js/mainGame/mainGame_Preloader.js',
+  'app/js/mainGame/mainGame_Enemy.js',
+  'app/js/mainGame/mainGame_Game.js',
+  'app/js/mainGame/mainGame_App.js',
   'app/js/boot.js',
   'app/js/home.js',
   'app/js/gameover.js',

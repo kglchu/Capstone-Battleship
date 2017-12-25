@@ -5,16 +5,33 @@
   <meta name="description" content="2D game where a player must find the enemy on a 10x10 board">
   <link rel="stylesheet" href="css/styles.css">
   <title>2D Game</title>
-  
+  <style>
+	#container div
+	{
+		display: inline-block;
+		width: 664px;
+	}
+  </style>
 </head>
 <body>
   
   <div id="container">
+  <center>
     <div id="game-canvas"></div>
+	<div id="second-canvas"></div>
+	<div id="third-canvas"></div>
+  </center>
   </div>
     
   </div>
   <script src="js/lib/phaser.min.js"></script>
   <script src="js/app.js"></script>
+  <script>
+	var secondGame = new mainGame("second-canvas");
+	secondGame.initialize();
+	
+	var thirdGame = new mainGame("third-canvas");
+	thirdGame.initialize();
+  </script>
 </body>
 </html>
