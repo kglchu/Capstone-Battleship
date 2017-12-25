@@ -23,3 +23,4 @@ Final project for the Thinkful course.
 ## Project Preview
 
 * Link - { https://gabesal.github.io/Capstone-Battleship/build/index.html }
+* Fork - { https://kglchu.github.io/Capstone-Battleship/build/index.html }
