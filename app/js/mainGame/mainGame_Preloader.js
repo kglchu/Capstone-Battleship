@@ -531,7 +531,7 @@ mainGame.prototype.preload = function()
 	  this.load.spritesheet('splash', 'img/assets/gfx/splash_spritesheet.png', 57, 62);
 
 	  // music
-	  this.load.audio('music', ['img/assets/audio/myself.Battleship.mp3', 'img/assets/audio/myself.Battleship.ogg']);
+	  this.load.audio('music', ['img/assets/audio/Battleship.mp3', 'img/assets/audio/Battleship.ogg']);
 	  // sound effects
 	  this.load.audio('explosion', 'img/assets/audio/Explosion Blast Large 05.mp3');
 	  this.load.audio('sunkenShip', 'img/assets/audio/Explosion Blast Debris Large 01.mp3');
