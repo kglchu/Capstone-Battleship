@@ -21,7 +21,7 @@ mainGame.prototype.enemy = function()
 	  this.playerShips.ship5.placed = false;
 	  this.playerShips.ship6.placed = false;
 
-	  // pCell = player board cells
+	  /* pCell = player board cells
 	  for (var Col = 0; Col < this.BOARD_COLS; Col++) {
 		for (var Row = 0; Row < this.BOARD_ROWS; Row++) {
 		  var pCell = this.playerCells.create((Col * this.CELL_SIZE_SPACED) + this.CELL_SIZE_SPACED/2 + 2, (Row * this.CELL_SIZE_SPACED + this.CELL_SIZE/2 + 64), 'cell', 0);
@@ -36,6 +36,8 @@ mainGame.prototype.enemy = function()
 		  pCell.isHit = false;
 		}
 	  }
+	  */
+	  myself.board.setupBoard(board);
 	};
 
 	myself.Battleship.GameState.enemyHit = function(cell) {

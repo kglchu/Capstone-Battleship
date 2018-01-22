@@ -19,7 +19,6 @@
   <center>
     <div id="game-canvas"></div>
 	<div id="second-canvas"></div>
-	<div id="third-canvas"></div>
   </center>
   </div>
     
@@ -30,10 +29,7 @@
 	var secondGame = new mainGame("second-canvas");
 	secondGame.initialize();
 	
-	var thirdGame = new mainGame("third-canvas");
-	thirdGame.initialize();
-	
-	
+	alert(secondGame.board.cellSize);
   </script>
 </body>
 </html>

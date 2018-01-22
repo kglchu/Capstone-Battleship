@@ -4,6 +4,7 @@ function mainGame(divID)
 {
 	this.Battleship;
 	this.canvas = divID;
+	this.board;
 	
 	this.initialize = function()
 	{

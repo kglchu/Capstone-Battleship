@@ -15,6 +15,10 @@ mainGame.prototype.boot = function()
 	myself.Battleship.GameState.CELL_SIZE = 64; // pixels
 	myself.Battleship.GameState.CELL_SPACING = 2; // margin/spacing
 	myself.Battleship.GameState.CELL_SIZE_SPACED = myself.Battleship.GameState.CELL_SIZE + myself.Battleship.GameState.CELL_SPACING; // total size of cell
+	//
+	
+	// Construct Game Board
+	myself.board = new gameBoard(10, 10, 64, 2, myself.Battleship.GameState);
 
 	// variable used to keep track of last cell hit and if it was populated or not
 	myself.Battleship.GameState.playerShipLastHit = null;
