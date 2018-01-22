@@ -1,4 +1,4 @@
-function mainBoard(rows, cols, size, spacing)
+function gameBoard(rows, cols, size, spacing)
 {
 	this.colCount = cols;
 	this.rowCount = rows;
