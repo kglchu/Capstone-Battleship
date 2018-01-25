@@ -22,6 +22,7 @@ var jsFiles = [
   'app/js/mainGame/mainGame_Game.js',
   'app/js/mainGame/mainGame_App.js',
   'app/js/board/gameBoard.js',
+  'app/js/mainGame/StartScreen.js',
   'app/js/boot.js',
   'app/js/home.js',
   'app/js/gameover.js',
